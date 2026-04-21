@@ -1,8 +1,9 @@
 # arcal-cert
 
-Transport-agnostic OMSC-SPC-008 RevK conformance and end-to-end test suite for any
-C++ CAL implementation. It contains no DDS- or transport-specific code; the parent
-project supplies the CAL library target and injects transport environment variables.
+A transport-agnostic OMSC-SPC-008 RevK conformance and end-to-end test suite for
+C++ CAL implementations. It checks public API compile/link compatibility and
+runtime behavior without DDS- or transport-specific code; the parent project
+supplies the CAL library target and injects transport environment variables.
 
 ## What it tests
 
@@ -26,7 +27,7 @@ project supplies the CAL library target and injects transport environment variab
 |---|---|
 | E2E-ActionCommand-PubSub | Publish + subscribe one ActionCommand message end-to-end |
 | E2E-TopicIsolation | Messages on one topic are not delivered on another |
-| E2E-content-fidelity | All fields survive a CDR round-trip |
+| E2E-content-fidelity | Message content survives CAL publish/subscribe delivery |
 | E2E-multi-message | Multiple sequential messages are all delivered |
 | E2E-listener-lifecycle | DataAvailableListener fires and can be removed cleanly |
 | E2E-two-writers-one-reader | Two writers, one reader; all messages received |
@@ -40,10 +41,6 @@ project supplies the CAL library target and injects transport environment variab
 - CMake ≥ 3.21
 - A conforming CAL library exposing `uci/base/*` and `uci/type/*` headers and
   providing `uci_getAbstractServiceBusConnection`
-- *(Optional)* A separate message serialization library, if your CAL packages
-  serialization as a distinct CMake target. If serialization is built into the
-  CAL library itself, leave `ARCAL_CERT_EXTERNALIZER_LIB` unset or set it to
-  the same target as `ARCAL_CERT_CAL_LIB`.
 
 ## Integration as a git submodule
 
@@ -56,10 +53,6 @@ Then in your `CMakeLists.txt`, **before** `add_subdirectory`:
 ```cmake
 # Required: your CAL implementation target.
 set(ARCAL_CERT_CAL_LIB "my_cal_target")
-
-# Optional: separate serialization library target, if your CAL packages
-# serialization separately. Omit if serialization is built into the CAL.
-set(ARCAL_CERT_EXTERNALIZER_LIB "my_serialization_target")
 
 # Optional: transport environment variables forwarded to every test.
 # List entries are VAR=VALUE strings; they are passed verbatim to CTest's
@@ -94,7 +87,6 @@ ctest --test-dir build -R "^E2E-"  --output-on-failure
 | Variable | Required | Description |
 |---|---|---|
 | `ARCAL_CERT_CAL_LIB` | **Yes** | CMake target for the CAL implementation |
-| `ARCAL_CERT_EXTERNALIZER_LIB` | No | Separate serialization library target (omit if bundled in CAL) |
 | `ARCAL_CERT_TEST_ENV` | No | Semicolon-separated `VAR=VALUE` list forwarded to test `ENVIRONMENT` |
 | `ARCAL_CERT_BUILD_CERT` | No | Build CERT tests (default `ON`) |
 | `ARCAL_CERT_BUILD_E2E` | No | Build E2E tests (default `ON`) |

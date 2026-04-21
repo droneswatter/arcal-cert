@@ -7,22 +7,6 @@ function(_arcal_cert_test cert_id)
         ENVIRONMENT "${ARCAL_CERT_TEST_ENV}")
 endfunction()
 
-# Variant requiring the CDR externalizer; silently skipped if not provided.
-function(_arcal_cert_test_ext cert_id)
-    if(NOT ARCAL_CERT_EXTERNALIZER_LIB)
-        message(STATUS "arcal-cert: skipping CERT-${cert_id} (ARCAL_CERT_EXTERNALIZER_LIB not set)")
-        return()
-    endif()
-    add_executable(cert_${cert_id} ${cert_id}.cpp)
-    target_link_libraries(cert_${cert_id} PRIVATE
-        ${ARCAL_CERT_CAL_LIB}
-        ${ARCAL_CERT_EXTERNALIZER_LIB})
-    add_test(NAME CERT-${cert_id} COMMAND cert_${cert_id})
-    set_tests_properties(CERT-${cert_id} PROPERTIES
-        TIMEOUT     8
-        ENVIRONMENT "${ARCAL_CERT_TEST_ENV}")
-endfunction()
-
 # CERT CAL-016015: Multiple CAL Clients in single address space get distinct UUIDs
 _arcal_cert_test(CAL-016015)
 
@@ -42,10 +26,10 @@ _arcal_cert_test(CAL-005203)
 _arcal_cert_test(CAL-005204)
 
 # CERT CAL-005208: Topic associated with one and only one CAL Message type
-_arcal_cert_test_ext(CAL-005208)
+_arcal_cert_test(CAL-005208)
 
 # CERT CAL-005209: Client Topics mapped to applicable CAL Topics
-_arcal_cert_test_ext(CAL-005209)
+_arcal_cert_test(CAL-005209)
 
 # CERT CAL-005210: Independent QoS settings per Client Topic
-_arcal_cert_test_ext(CAL-005210)
+_arcal_cert_test(CAL-005210)

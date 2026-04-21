@@ -1,232 +1,193 @@
-# Package CERT and E2E tests as `arcal-cert`
+# arcal-cert Plan
 
-## Context
+`arcal-cert` is a conformance suite for C++ CAL implementations. It verifies public API compile/link compatibility, CERT requirements, and end-to-end runtime behavior through the public CAL API. It should remain transport-agnostic: the parent project supplies the CAL target and any transport environment variables.
 
-The CERT and E2E tests in `arcal/test/cert/` and `arcal/test/e2e/` test conformance to
-OMSC-SPC-008 using only the public `uci::base::*` / `uci::type::*` CAL API. They could
-run against any compliant CAL, but are currently embedded inside the arcal build and
-hard-code arcal target names and CycloneDDS transport configuration. The goal is to move
-them into a standalone git repository (`arcal-cert`) that any CAL project can consume as a
-git submodule, with CMake variables for the CAL library target and test environment.
+Some compile/link API-shape checks can live in `arcal-cert` when they exercise the public C++CAL headers and link target directly. Implementation-specific build checks still belong in the CAL implementation's own build.
 
-Transport configuration (e.g. `CYCLONEDDS_URI`, `cyclonedds_localhost.xml`) is
-deliberately left in the parent project (arcal) — arcal-cert knows nothing about DDS.
+## P0: Submodule Contract
 
-While we're here, `pub_rich.cpp` and `pub_continuous.cpp` are bus-monitor utilities that
-live in `test/e2e/` but belong in `arcal-busmon/`. That move is included.
+Keep this repository easy for any CAL project to consume as a CMake subdirectory.
 
----
+Tasks:
 
-## New repository: `/home/brent/repos/modular-af/arcal-cert/`
+- [ ] Keep `ARCAL_CERT_CAL_LIB` as the only required integration variable.
+- [ ] Keep `ARCAL_CERT_TEST_ENV` as the only transport environment injection mechanism.
+- [ ] Avoid private implementation headers, generated build paths, DDS types, or ARCAL-specific helpers in tests.
+- [ ] Ensure every executable links only to `ARCAL_CERT_CAL_LIB`.
+- [ ] Keep CMake failures clear when required targets are missing.
+- [ ] Add CTest labels for filtering:
+  - `cert`
+  - `e2e`
+  - `runtime`
 
-### Directory layout
-
-```
-arcal-cert/
-├── CMakeLists.txt
-├── README.md
-├── cert/
-│   ├── CMakeLists.txt
-│   ├── CAL-005201.cpp      ← copied from arcal/test/cert/
-│   ├── CAL-005202.cpp
-│   ├── CAL-005203.cpp
-│   ├── CAL-005204.cpp
-│   ├── CAL-005208.cpp
-│   ├── CAL-005209.cpp
-│   ├── CAL-005210.cpp
-│   ├── CAL-016015.cpp
-│   └── CAL-016366.cpp
-└── e2e/
-    ├── CMakeLists.txt
-    ├── run_e2e_action_command.sh.in   ← stripped of transport exports
-    ├── run_e2e_topic_isolation.sh.in  ← stripped of transport exports
-    ├── pub_action_command.cpp         ← copied (needed by shell test)
-    ├── sub_action_command.cpp         ← copied (needed by shell test)
-    ├── topic_isolation.cpp
-    ├── content_fidelity.cpp
-    ├── multi_message.cpp
-    ├── listener_lifecycle.cpp
-    ├── two_writers_one_reader.cpp
-    ├── two_readers_one_writer.cpp
-    ├── readnowait_empty.cpp
-    └── read_timeout.cpp
-```
-
-**Not included**: `cyclonedds_localhost.xml` (stays in arcal — it's DDS-specific),
-`pub_rich.cpp`, `pub_continuous.cpp` (moved to arcal-busmon).
-
----
-
-### CMake variables (transport-agnostic)
-
-| Variable | Required | Description |
-|---|---|---|
-| `ARCAL_CERT_CAL_LIB` | Yes | CMake target for the CAL implementation. Must expose `uci/base/*` and `uci/type/*` in its interface include dirs and provide `uci_getAbstractServiceBusConnection`. |
-| `ARCAL_CERT_EXTERNALIZER_LIB` | No | CMake target for the CDR message externalizer. Required for E2E tests and CERT CAL-005208/209/210. If unset, those tests are skipped with `message(STATUS ...)`. |
-| `ARCAL_CERT_TEST_ENV` | No | Semicolon-separated list of `VAR=VALUE` strings forwarded verbatim to every test's `ENVIRONMENT` property. The parent project injects transport-specific vars here (e.g. `CYCLONEDDS_URI=...`, `LD_LIBRARY_PATH=...`). |
-| `ARCAL_CERT_BUILD_CERT` | No | Build CERT tests (default `ON`) |
-| `ARCAL_CERT_BUILD_E2E` | No | Build E2E tests (default `ON`) |
-
-### `arcal-cert/CMakeLists.txt`
-
-```cmake
-cmake_minimum_required(VERSION 3.21)
-project(arcal-cert LANGUAGES CXX)
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
-set(ARCAL_CERT_CAL_LIB          ""  CACHE STRING "CMake target for the CAL library (required)")
-set(ARCAL_CERT_EXTERNALIZER_LIB ""  CACHE STRING "CMake target for CDR externalizer (optional)")
-set(ARCAL_CERT_TEST_ENV         ""  CACHE STRING "Extra env vars for tests, e.g. 'TRANSPORT_URI=...'")
-option(ARCAL_CERT_BUILD_CERT "Build CERT tests" ON)
-option(ARCAL_CERT_BUILD_E2E  "Build E2E tests"  ON)
-
-if(NOT ARCAL_CERT_CAL_LIB)
-    message(FATAL_ERROR "ARCAL_CERT_CAL_LIB must name the CMake target for your CAL implementation.")
-endif()
-if(NOT TARGET ${ARCAL_CERT_CAL_LIB})
-    message(FATAL_ERROR "'${ARCAL_CERT_CAL_LIB}' is not a defined CMake target.")
-endif()
-if(ARCAL_CERT_EXTERNALIZER_LIB AND NOT TARGET ${ARCAL_CERT_EXTERNALIZER_LIB})
-    message(FATAL_ERROR "'${ARCAL_CERT_EXTERNALIZER_LIB}' is not a defined CMake target.")
-endif()
-
-enable_testing()
-if(ARCAL_CERT_BUILD_CERT) add_subdirectory(cert) endif()
-if(ARCAL_CERT_BUILD_E2E)  add_subdirectory(e2e)  endif()
-```
-
-### `arcal-cert/cert/CMakeLists.txt`
-
-Two internal helpers `_arcal_cert_test(id)` and `_arcal_cert_test_ext(id)` each call
-`set_tests_properties(... ENVIRONMENT "${ARCAL_CERT_TEST_ENV}")`. The `_ext` variant
-skips gracefully if `ARCAL_CERT_EXTERNALIZER_LIB` is unset.
-
-### `arcal-cert/e2e/CMakeLists.txt`
-
-Guards at top: `return()` with status message if `ARCAL_CERT_EXTERNALIZER_LIB` is unset.
-Otherwise mirrors the existing `test/e2e/CMakeLists.txt` using the variable targets
-and `ARCAL_CERT_TEST_ENV`. Drops the `PRIVATE ${CMAKE_SOURCE_DIR}/src` include path
-(no test file actually uses it).
-
-### Shell scripts — transport-neutral
-
-`run_e2e_action_command.sh.in` and `run_e2e_topic_isolation.sh.in` currently export
-`CYCLONEDDS_URI` and `LD_LIBRARY_PATH` inline. Both lines are removed. CTest injects
-those values via `ENVIRONMENT` (set from `ARCAL_CERT_TEST_ENV`), which is inherited by
-shell script child processes. The scripts become pure orchestration logic with only
-`@CMAKE_CURRENT_BINARY_DIR@` substituted.
-
----
-
-## Changes to `arcal/`
-
-### 1. Add arcal-cert as a git submodule
+Verification:
 
 ```bash
-git -C /home/brent/repos/modular-af/arcal \
-    submodule add ../arcal-cert test/arcal-cert
+cmake --build build
+ctest --test-dir build -N
 ```
 
-### 2. Update `arcal/CMakeLists.txt`
+## P0: Requirements Traceability
 
-Replace:
-```cmake
-if(ARCAL_BUILD_TESTS)
-    add_subdirectory(test/cert)
-    ...
-endif()
-if(ARCAL_BUILD_E2E_TESTS)
-    add_subdirectory(test/e2e)
-endif()
-```
-With:
-```cmake
-if(ARCAL_BUILD_TESTS OR ARCAL_BUILD_E2E_TESTS)
-    set(ARCAL_CERT_CAL_LIB          "arcal"                  CACHE STRING "" FORCE)
-    set(ARCAL_CERT_EXTERNALIZER_LIB "arcal_externalizer_cdr" CACHE STRING "" FORCE)
-    set(ARCAL_CERT_BUILD_CERT       ${ARCAL_BUILD_TESTS}     CACHE BOOL   "" FORCE)
-    set(ARCAL_CERT_BUILD_E2E        ${ARCAL_BUILD_E2E_TESTS} CACHE BOOL   "" FORCE)
-    set(ARCAL_CERT_TEST_ENV
-        "CYCLONEDDS_URI=file://${CMAKE_SOURCE_DIR}/test/e2e/cyclonedds_localhost.xml"
-        CACHE STRING "" FORCE)
-    add_subdirectory(test/arcal-cert)
-endif()
-```
+Create a matrix that makes coverage honest and reviewable.
 
-`cyclonedds_localhost.xml` stays in `arcal/test/e2e/` (or moves to `arcal/test/` — either
-works since the path is constructed by arcal's CMakeLists, not by arcal-cert).
+Tasks:
 
-### 3. Delete migrated files from arcal
+- [ ] Add `CONFORMANCE.md` with a requirements matrix.
+- [ ] Start with every existing `CERT-CAL-*` test in `cert/`.
+- [ ] Record uncovered CERT requirements as `planned`, not implied.
+- [ ] Use these columns:
+  - Requirement
+  - Area
+  - Test type
+  - Test file
+  - Status
+  - Notes
+- [ ] Keep statuses small and consistent:
+  - `covered`
+  - `partial`
+  - `planned`
+  - `blocked`
+  - `not applicable`
+- [ ] Link each requirement row to the test file that covers it.
+- [ ] Add a short note when a requirement is covered by compile/link checks outside `arcal-cert`.
 
-- `arcal/test/cert/` — entire directory (9 .cpp + CMakeLists.txt)
-- `arcal/test/e2e/` — all CTest-registered test files + shell scripts (see list above)
-- Keep: `arcal/test/e2e/pub_rich.cpp`, `pub_continuous.cpp`, `cyclonedds_localhost.xml`
-
-After deletion `arcal/test/e2e/CMakeLists.txt` is removed entirely (it only built tests and
-the two demo programs, which are moving to arcal-busmon).
-
----
-
-## Changes to `arcal-busmon/`
-
-Move `arcal/test/e2e/pub_rich.cpp` and `arcal/test/e2e/pub_continuous.cpp` to
-`arcal-busmon/`. Update `arcal-busmon/CMakeLists.txt` to build them, linking against
-`arcal` and `arcal_externalizer_cdr`.
-
----
-
-## `arcal-cert/README.md` — key sections
-
-1. **What it is**: transport-agnostic OMSC-SPC-008 RevK conformance test suite. 9 CERT tests + 9 E2E pub/sub scenarios. No DDS-specific code.
-2. **Requirements**: C++17, CMake ≥ 3.21, a conforming CAL library + optional CDR externalizer.
-3. **Integration as a git submodule**:
-   ```bash
-   git submodule add https://github.com/modular-af/arcal-cert <path>
-   ```
-   Then in your `CMakeLists.txt`:
-   ```cmake
-   set(ARCAL_CERT_CAL_LIB          "your_cal_target")
-   set(ARCAL_CERT_EXTERNALIZER_LIB "your_cdr_target")  # omit to skip E2E + 3 CERT tests
-   set(ARCAL_CERT_TEST_ENV         "YOUR_TRANSPORT_URI=..." "LD_LIBRARY_PATH=...")
-   add_subdirectory(<path>)
-   ```
-4. **Environment variables**: injected by the parent via `ARCAL_CERT_TEST_ENV`; arcal-cert itself sets none.
-5. **Running**:
-   ```bash
-   cmake --build build
-   ctest --test-dir build -R "^(CERT|E2E)-" --output-on-failure
-   ```
-6. **Test inventory table**: one row per test with CERT ID, description, and whether externalizer is required.
-
----
-
-## Verification
+Verification:
 
 ```bash
-# Full arcal build (now uses arcal-cert submodule)
-cmake --build /home/brent/repos/modular-af/arcal/build
-
-# All 22 tests must still pass
-ctest --test-dir /home/brent/repos/modular-af/arcal/build --output-on-failure
+rg -n "CERT-CAL-|planned|partial|blocked" CONFORMANCE.md
 ```
 
----
+## P0: CERT Test Quality
 
-## Files summary
+Keep CERT tests focused, traceable, and transport-neutral.
 
-| Action | Path |
-|---|---|
-| **git init** new repo | `/home/brent/repos/modular-af/arcal-cert/` |
-| **Create** | `arcal-cert/CMakeLists.txt` |
-| **Create** | `arcal-cert/README.md` |
-| **Create** | `arcal-cert/cert/CMakeLists.txt` |
-| **Copy** 9 files | `arcal/test/cert/*.cpp` → `arcal-cert/cert/` |
-| **Create** | `arcal-cert/e2e/CMakeLists.txt` |
-| **Copy** 12 files | E2E `.cpp` + simplified `.sh.in` → `arcal-cert/e2e/` |
-| **Modify** | `arcal/CMakeLists.txt` |
-| **Delete** | `arcal/test/cert/` (all) |
-| **Delete** | `arcal/test/e2e/` test files + CMakeLists |
-| **git submodule add** | `arcal-cert` → `arcal/test/arcal-cert/` |
-| **Move** | `pub_rich.cpp`, `pub_continuous.cpp` → `arcal-busmon/` |
-| **Modify** | `arcal-busmon/CMakeLists.txt` |
+Tasks:
+
+- [ ] Ensure every CERT test has the requirement ID in the filename.
+- [ ] Ensure every CERT test starts with a short comment naming the requirement being exercised.
+- [ ] Keep each CERT test focused on one primary behavior.
+- [ ] Avoid sleeps unless the behavior is inherently asynchronous.
+- [ ] Replace broad `assert(...)` messages with specific failure messages where useful.
+- [ ] Confirm all tests link only to `ARCAL_CERT_CAL_LIB`.
+- [ ] Do not call `Externalizer` APIs from conformance tests unless a future requirement explicitly targets that API.
+
+Verification:
+
+```bash
+ctest --test-dir build -R "^CERT-" --output-on-failure
+```
+
+## P1: Broaden CERT Behavior Coverage
+
+Add more requirement-level runtime tests where the behavior is observable through the public CAL API.
+
+Tasks:
+
+- [ ] Add tests for ASB lifecycle behavior:
+  - initialization success
+  - shutdown idempotence or documented post-shutdown behavior
+  - status before and after shutdown
+- [ ] Add tests for status listener behavior:
+  - immediate callback on registration
+  - no callback after removal
+  - multiple listeners receive state changes
+- [ ] Add tests for UUID behavior:
+  - system/service/subsystem/component/capability UUID stability
+  - unique service UUIDs for distinct service identifiers
+  - repeated lookup stability for same component/capability names
+- [ ] Add tests for topic behavior:
+  - one topic associated with one message type
+  - independent topics do not cross-deliver
+  - multiple readers and writers on the same topic behave consistently
+- [ ] Add tests for reader/writer lifecycle:
+  - `close()` prevents further use as required or documented
+  - destroy functions close resources cleanly
+  - read timeout semantics
+  - read-no-wait semantics
+- [ ] Keep message-content tests format-agnostic:
+  - publish via CAL writer
+  - receive via CAL reader
+  - compare public accessor values
+  - never inspect wire bytes or serialization whitespace
+
+Verification:
+
+```bash
+ctest --test-dir build -R "^(CERT|E2E)-" --output-on-failure
+```
+
+## P1: Generated Message Runtime Coverage
+
+Exercise representative generated message shapes without turning this repository into a schema compiler test suite.
+
+Tasks:
+
+- [ ] Pick a small set of representative generated message types:
+  - scalar field
+  - enum field
+  - choice field
+  - unbounded list field
+  - bounded list field
+  - inherited/base fields
+  - nested complex field
+- [ ] Add runtime round-trip checks through CAL writer/reader APIs.
+- [ ] Add E2E publish/subscribe checks only where transport behavior matters.
+- [ ] Keep compile-only API-shape checks out of this repo unless they are necessary to build a runtime test.
+
+Verification:
+
+```bash
+ctest --test-dir build -R "content|round|E2E-" --output-on-failure
+```
+
+## P1: Runtime Portability
+
+Make failures easy to attribute to a CAL implementation or environment.
+
+Tasks:
+
+- [ ] Document that transport configuration belongs in the parent project.
+- [ ] Keep examples for `ARCAL_CERT_TEST_ENV` generic.
+- [ ] Avoid hard-coded paths in scripts and tests.
+- [ ] Ensure shell scripts inherit CTest environment variables rather than setting transport variables themselves.
+- [ ] Consider a minimal "environment sanity" test label for parent projects that want to diagnose transport setup separately.
+
+Verification:
+
+```bash
+ctest --test-dir build -R "^E2E-" --output-on-failure
+```
+
+## P2: Developer Workflow
+
+Make daily use boring and predictable.
+
+Tasks:
+
+- [ ] Keep `README.md` and `PLAN.md` aligned on CMake variable names.
+- [ ] Add a short "Common commands" section to `README.md`.
+- [ ] Add CTest labels and document common filters.
+- [ ] Add a maintainer checklist for new CERT tests:
+  - requirement ID
+  - public API only
+  - transport-neutral
+  - CMake helper choice
+  - matrix row
+- [ ] Consider adding CI examples for parent projects.
+
+Common commands:
+
+```bash
+cmake --build build
+ctest --test-dir build -R "^CERT-" --output-on-failure
+ctest --test-dir build -R "^E2E-" --output-on-failure
+ctest --test-dir build -R "^(CERT|E2E)-" --output-on-failure
+```
+
+## Boundaries
+
+- `arcal-cert` owns portable CERT and E2E conformance tests, including public API compile/link checks where practical.
+- Parent projects own transport configuration and implementation-specific setup.
+- CAL implementations may add their own implementation-specific compile/link checks outside `arcal-cert`.
+- Tests should prefer public CAL APIs over implementation knowledge, even when implementation-specific shortcuts would be easier.

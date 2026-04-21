@@ -1,6 +1,6 @@
-// E2E test — CDR round-trip content fidelity.
-// Sets a known string on the outbound message and verifies the deserialized
-// copy carries the same value.
+// E2E test — CAL pub/sub content fidelity.
+// Sets a known string on the outbound message and verifies the received copy
+// carries the same value. The wire encoding is intentionally opaque here.
 
 #include "uci/type/ActionCommandMT.h"
 #include "uci/base/AbstractServiceBusConnection.h"
