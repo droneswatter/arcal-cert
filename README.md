@@ -6,7 +6,9 @@ project supplies the CAL library target and injects transport environment variab
 
 ## What it tests
 
-| Test ID | Name | Externalizer required? |
+**CERT** — compile-and-run checks against OMSC-SPC-008 RevK requirement IDs:
+
+| Test ID | Description | Externalizer required? |
 |---|---|---|
 | CERT-CAL-016015 | Distinct UUIDs for multiple CAL clients in one address space | No |
 | CERT-CAL-016366 | Status listener called immediately on registration with current state | No |
@@ -17,6 +19,11 @@ project supplies the CAL library target and injects transport environment variab
 | CERT-CAL-005208 | Topic associated with one and only one CAL message type | Yes |
 | CERT-CAL-005209 | Client topics mapped to applicable CAL topics | Yes |
 | CERT-CAL-005210 | Independent QoS settings per client topic | Yes |
+
+**E2E** — single- and multi-process pub/sub scenarios:
+
+| Test ID | Description | Externalizer required? |
+|---|---|---|
 | E2E-ActionCommand-PubSub | Publish + subscribe one ActionCommand message end-to-end | Yes |
 | E2E-TopicIsolation | Messages on one topic are not delivered on another | Yes |
 | E2E-content-fidelity | All fields survive a CDR round-trip | Yes |
@@ -39,7 +46,7 @@ project supplies the CAL library target and injects transport environment variab
 ## Integration as a git submodule
 
 ```bash
-git submodule add https://github.com/modular-af/arcal-cert <path/to/arcal-cert>
+git submodule add https://github.com/droneswatter/arcal-cert <path/to/arcal-cert>
 ```
 
 Then in your `CMakeLists.txt`, **before** `add_subdirectory`:
