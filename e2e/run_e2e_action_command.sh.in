@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+# E2E smoke test: ActionCommand pub/sub on localhost.
+# CTest runs this via add_test(); run manually from the build directory as:
+#
+#   bash test/e2e/run_e2e_action_command.sh
+#
+# Transport environment variables (e.g. CYCLONEDDS_URI) are injected by the
+# parent project via ARCAL_CERT_TEST_ENV and inherited from the CTest process.
+set -euo pipefail
+
+DIR="@CMAKE_CURRENT_BINARY_DIR@"
+
+# Start subscriber in background; it will block waiting for a message.
+"$DIR/e2e_sub" &
+SUB_PID=$!
+
+# Allow the subscriber's DDS participant to start before the publisher.
+# Loopback unicast discovery completes in <10ms; 200ms is generous margin.
+sleep 0.2
+
+# Publish one message.
+"$DIR/e2e_pub"
+PUB_EXIT=$?
+
+# Wait for the subscriber to finish and capture its exit code.
+wait "$SUB_PID"
+SUB_EXIT=$?
+
+if [ "$PUB_EXIT" -ne 0 ]; then
+    echo "FAIL: publisher exited with code $PUB_EXIT" >&2
+    exit 1
+fi
+
+exit "$SUB_EXIT"

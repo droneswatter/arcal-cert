@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+# Transport environment variables (e.g. CYCLONEDDS_URI) are injected by the
+# parent project via ARCAL_CERT_TEST_ENV and inherited from the CTest process.
+set -euo pipefail
+exec @CMAKE_CURRENT_BINARY_DIR@/e2e_topic_isolation
