@@ -4,7 +4,8 @@ function(_arcal_cert_test cert_id)
     add_test(NAME CERT-${cert_id} COMMAND cert_${cert_id})
     set_tests_properties(CERT-${cert_id} PROPERTIES
         TIMEOUT     8
-        ENVIRONMENT "${ARCAL_CERT_TEST_ENV}")
+        ENVIRONMENT "${ARCAL_CERT_TEST_ENV}"
+        LABELS      "cert;runtime")
 endfunction()
 
 # CERT CAL-016015: Multiple CAL Clients in single address space get distinct UUIDs

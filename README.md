@@ -7,6 +7,9 @@ supplies the CAL library target and injects transport environment variables.
 
 ## What it tests
 
+See [CONFORMANCE.md](CONFORMANCE.md) for the traceability matrix, including
+covered, partial, and planned requirement coverage.
+
 **CERT** — compile-and-run checks against OMSC-SPC-008 RevK requirement IDs:
 
 | Test ID | Description |

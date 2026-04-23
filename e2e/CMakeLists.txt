@@ -19,7 +19,8 @@ add_test(
     COMMAND ${CMAKE_CURRENT_BINARY_DIR}/run_e2e_action_command.sh)
 set_tests_properties(E2E-ActionCommand-PubSub PROPERTIES
     TIMEOUT     8
-    ENVIRONMENT "${ARCAL_CERT_TEST_ENV}")
+    ENVIRONMENT "${ARCAL_CERT_TEST_ENV}"
+    LABELS      "e2e;runtime")
 
 # ---------------------------------------------------------------------------
 # Topic isolation (two-process shell test)
@@ -39,7 +40,8 @@ add_test(
     COMMAND ${CMAKE_CURRENT_BINARY_DIR}/run_e2e_topic_isolation.sh)
 set_tests_properties(E2E-TopicIsolation PROPERTIES
     TIMEOUT     8
-    ENVIRONMENT "${ARCAL_CERT_TEST_ENV}")
+    ENVIRONMENT "${ARCAL_CERT_TEST_ENV}"
+    LABELS      "e2e;runtime")
 
 # ---------------------------------------------------------------------------
 # Single-process E2E tests
@@ -61,5 +63,6 @@ foreach(_test IN ITEMS
     add_test(NAME E2E-${_test_name} COMMAND e2e_${_test})
     set_tests_properties(E2E-${_test_name} PROPERTIES
         TIMEOUT     8
-        ENVIRONMENT "${ARCAL_CERT_TEST_ENV}")
+        ENVIRONMENT "${ARCAL_CERT_TEST_ENV}"
+        LABELS      "e2e;runtime")
 endforeach()
