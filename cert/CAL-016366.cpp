@@ -29,8 +29,24 @@ int main() {
     assert(listener.callCount >= 1 && "Listener must be called immediately upon registration");
     assert(listener.lastStatus.state == uci::base::AbstractServiceBusConnectionStatusData::NORMAL);
 
-    asb->removeStatusListener(listener);
+    TestListener removedListener;
+    TestListener secondListener;
+    asb->addStatusListener(removedListener);
+    asb->addStatusListener(secondListener);
+    assert(removedListener.callCount >= 1);
+    assert(secondListener.callCount >= 1);
+
+    const int removedCountBeforeShutdown = removedListener.callCount;
+    asb->removeStatusListener(removedListener);
+
     asb->shutdown();
+    assert(listener.lastStatus.state == uci::base::AbstractServiceBusConnectionStatusData::FAILED);
+    assert(secondListener.lastStatus.state == uci::base::AbstractServiceBusConnectionStatusData::FAILED);
+    assert(removedListener.callCount == removedCountBeforeShutdown
+           && "removed listener must not receive later state changes");
+
+    asb->removeStatusListener(listener);
+    asb->removeStatusListener(secondListener);
     uci_destroyAbstractServiceBusConnection(asb);
 
     std::cout << "PASS CAL-016366\n";

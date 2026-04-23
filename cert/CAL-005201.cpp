@@ -18,6 +18,13 @@ int main() {
     assert(asb->getMyServiceUUID().isValid() && "Service UUID must be valid after init");
 
     asb->shutdown();
+    assert(asb->getStatus().state == uci::base::AbstractServiceBusConnectionStatusData::FAILED
+           && "shutdown must leave ASB in terminal FAILED state");
+
+    asb->shutdown();
+    assert(asb->getStatus().state == uci::base::AbstractServiceBusConnectionStatusData::FAILED
+           && "shutdown must be idempotent");
+
     uci_destroyAbstractServiceBusConnection(asb);
 
     std::cout << "PASS CAL-005201\n";

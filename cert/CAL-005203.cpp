@@ -16,6 +16,8 @@ int main() {
     auto sub  = asb->getMySubsystemUUID();
     auto comp = asb->getMyComponentUUID("RadarComponent");
     auto cap  = asb->getMyCapabilityUUID("DetectionCapability");
+    auto compAgain = asb->getMyComponentUUID("RadarComponent");
+    auto capAgain  = asb->getMyCapabilityUUID("DetectionCapability");
 
     assert(!sys.isNil()  && sys.isValid());
     assert(!svc.isNil()  && svc.isValid());
@@ -30,6 +32,8 @@ int main() {
     assert(comp != cap);
 
     // Different names at the same scope level must produce different UUIDs
+    assert(comp == compAgain);
+    assert(cap  == capAgain);
     assert(comp != asb->getMyComponentUUID("SensorComponent"));
     assert(cap  != asb->getMyCapabilityUUID("TrackingCapability"));
 

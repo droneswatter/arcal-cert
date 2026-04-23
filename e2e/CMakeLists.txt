@@ -54,7 +54,8 @@ foreach(_test IN ITEMS
     two_writers_one_reader
     two_readers_one_writer
     readnowait_empty
-    read_timeout)
+    read_timeout
+    reader_writer_close)
 
     add_executable(e2e_${_test} ${_test}.cpp)
     target_link_libraries(e2e_${_test} PRIVATE ${ARCAL_CERT_CAL_LIB})

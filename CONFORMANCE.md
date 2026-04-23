@@ -17,15 +17,15 @@ Status values:
 
 | Requirement | Area | Test type | Test file | Status | Notes |
 |---|---|---|---|---|---|
-| CERT-CAL-005201 | ASB lifecycle | Runtime | [cert/CAL-005201.cpp](cert/CAL-005201.cpp) | covered | Verifies initialized ASB creation, `NORMAL` status, and valid service UUID. |
+| CERT-CAL-005201 | ASB lifecycle | Runtime | [cert/CAL-005201.cpp](cert/CAL-005201.cpp) | covered | Verifies initialized ASB creation, `NORMAL` status, valid service UUID, and idempotent shutdown behavior. |
 | CERT-CAL-005202 | ASB identity | Runtime | [cert/CAL-005202.cpp](cert/CAL-005202.cpp) | covered | Verifies same service/ASB identifiers produce stable service UUIDs and distinct service labels produce distinct UUIDs. |
-| CERT-CAL-005203 | UUID accessors | Runtime | [cert/CAL-005203.cpp](cert/CAL-005203.cpp) | partial | Verifies non-nil system/service/subsystem/component/capability UUIDs and distinct names. Repeated lookup stability remains planned. |
+| CERT-CAL-005203 | UUID accessors | Runtime | [cert/CAL-005203.cpp](cert/CAL-005203.cpp) | covered | Verifies non-nil system/service/subsystem/component/capability UUIDs, distinct names, and repeated lookup stability. |
 | CERT-CAL-005204 | Error reporting | Runtime | [cert/CAL-005204.cpp](cert/CAL-005204.cpp) | partial | Verifies status/listener error-state reporting through shutdown. A portable forced initialization-failure scenario remains planned or parent-specific. |
 | CERT-CAL-005208 | Topic/type association | Runtime | [cert/CAL-005208.cpp](cert/CAL-005208.cpp) | partial | Verifies typed reader/writer creation on a topic. Negative mismatched-type behavior remains planned if expressible through public APIs. |
 | CERT-CAL-005209 | Client topic mapping | Runtime | [cert/CAL-005209.cpp](cert/CAL-005209.cpp) | covered | Verifies client-facing topic names can be used to create matching typed readers and writers. |
 | CERT-CAL-005210 | Per-topic QoS | Runtime | [cert/CAL-005210.cpp](cert/CAL-005210.cpp) | partial | Verifies independent client topics can coexist. Direct QoS policy assertion depends on public API coverage and remains planned. |
-| CERT-CAL-016015 | Multiple clients | Runtime | [cert/CAL-016015.cpp](cert/CAL-016015.cpp) | partial | Verifies distinct service UUIDs for multiple CAL clients in one process. Full same-as-separate-process pub/sub behavior is supported by E2E tests. |
-| CERT-CAL-016366 | Status listener | Runtime | [cert/CAL-016366.cpp](cert/CAL-016366.cpp) | covered | Verifies listener registration immediately reports current ASB status. |
+| CERT-CAL-016015 | Multiple clients | Runtime | [cert/CAL-016015.cpp](cert/CAL-016015.cpp) | covered | Verifies distinct service UUIDs and same-process pub/sub between two CAL clients. |
+| CERT-CAL-016366 | Status listener | Runtime | [cert/CAL-016366.cpp](cert/CAL-016366.cpp) | covered | Verifies listener registration immediately reports current ASB status, removed listeners stop receiving updates, and multiple listeners receive state changes. |
 
 ## Supplemental E2E Coverage
 
@@ -43,17 +43,14 @@ exercising portable public-API behavior against the parent implementation.
 | Two readers, one writer | Pub/sub fan-out | E2E runtime | [e2e/two_readers_one_writer.cpp](e2e/two_readers_one_writer.cpp) | covered | Verifies two readers can independently receive from one writer. |
 | Empty readNoWait | Reader behavior | E2E runtime | [e2e/readnowait_empty.cpp](e2e/readnowait_empty.cpp) | covered | Verifies non-blocking empty read semantics. |
 | Read timeout | Reader behavior | E2E runtime | [e2e/read_timeout.cpp](e2e/read_timeout.cpp) | covered | Verifies blocking read timeout semantics. |
+| Reader/writer close | Reader/writer lifecycle | E2E runtime | [e2e/reader_writer_close.cpp](e2e/reader_writer_close.cpp) | covered | Verifies read, readNoWait, and write operations throw after close. |
 
 ## Planned Portable Coverage
 
 | Requirement | Area | Test type | Test file | Status | Notes |
 |---|---|---|---|---|---|
-| CERT-CAL-005203 | UUID accessors | Runtime | planned | planned | Repeated component/capability lookup stability for identical names. |
 | CERT-CAL-005204 | Error reporting | Runtime | planned | planned | Parent-injected initialization failure, if a transport-neutral trigger can be defined. |
 | CERT-CAL-005208 | Topic/type association | Runtime | planned | planned | Negative test for one topic associated with multiple message types, if public API behavior is specified. |
 | CERT-CAL-005210 | Per-topic QoS | Runtime | planned | planned | Direct QoS configuration/assertion through public CAL API, if exposed by the binding. |
-| CERT-CAL-016015 | Multiple clients | Runtime | planned | planned | Stronger same-address-space pub/sub comparison for multiple service clients. |
-| planned | ASB lifecycle | Runtime | planned | planned | Shutdown idempotence and documented post-shutdown behavior. |
-| planned | Status listener | Runtime | planned | planned | No callback after removal and multiple listeners receiving state changes. |
-| planned | Reader/writer lifecycle | Runtime | planned | planned | `close()` and destroy semantics after resource teardown. |
+| planned | Reader/writer lifecycle | Runtime | planned | planned | Destroy semantics after resource teardown. |
 | planned | Generated message shapes | E2E runtime | planned | planned | Representative choice, bounded list, inherited/base-field, and nested complex-field message round trips. |
