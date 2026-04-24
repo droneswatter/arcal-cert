@@ -26,7 +26,7 @@ int main() {
     reader.addListener(listener);
 
     // Publish and wait for background delivery.
-    uci::type::ActionCommandMT msg;
+    auto& msg = uci::type::ActionCommandMT::create(asb);
     writer.write(msg);
     std::this_thread::sleep_for(std::chrono::milliseconds(300));
 
@@ -41,6 +41,7 @@ int main() {
     int afterSecond = listener.received;
 
     writer.close();
+    uci::type::ActionCommandMT::destroy(msg);
     uci::type::ActionCommandMT::destroyWriter(writer);
     reader.close();
     uci::type::ActionCommandMT::destroyReader(reader);

@@ -34,7 +34,7 @@ int main() {
     writer.close();
 
     Listener listener;
-    uci::type::ActionCommandMT msg;
+    auto& msg = uci::type::ActionCommandMT::create(asb);
 
     const bool readThrows = throwsException([&] {
         reader.read(10, 1, listener);
@@ -46,6 +46,7 @@ int main() {
         writer.write(msg);
     });
 
+    uci::type::ActionCommandMT::destroy(msg);
     uci::type::ActionCommandMT::destroyReader(reader);
     uci::type::ActionCommandMT::destroyWriter(writer);
     asb->shutdown();

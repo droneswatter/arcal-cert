@@ -27,13 +27,14 @@ int main() {
     // Write and read one at a time: default QoS is KeepLast(1), so sending
     // from both writers without reading would leave only the latest sample.
     Listener listener;
-    uci::type::ActionCommandMT msg;
+    auto& msg = uci::type::ActionCommandMT::create(asb);
     writerA.write(msg);
     reader.read(2000, 1, listener);
     writerB.write(msg);
     reader.read(2000, 1, listener);
 
     writerA.close();
+    uci::type::ActionCommandMT::destroy(msg);
     uci::type::ActionCommandMT::destroyWriter(writerA);
     writerB.close();
     uci::type::ActionCommandMT::destroyWriter(writerB);

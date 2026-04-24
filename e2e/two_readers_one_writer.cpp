@@ -24,7 +24,7 @@ int main() {
 
     std::this_thread::sleep_for(std::chrono::milliseconds(200));
 
-    uci::type::ActionCommandMT msg;
+    auto& msg = uci::type::ActionCommandMT::create(asb);
     writer.write(msg);
 
     Listener listenerA, listenerB;
@@ -32,6 +32,7 @@ int main() {
     readerB.read(2000, 1, listenerB);
 
     writer.close();
+    uci::type::ActionCommandMT::destroy(msg);
     uci::type::ActionCommandMT::destroyWriter(writer);
     readerA.close();
     uci::type::ActionCommandMT::destroyReader(readerA);

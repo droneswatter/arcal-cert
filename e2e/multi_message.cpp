@@ -27,13 +27,14 @@ int main() {
     // Write and read one at a time: default QoS is KeepLast(1), so rapid-fire
     // writes would overwrite the buffer before they are read.
     Listener listener;
-    uci::type::ActionCommandMT msg;
+    auto& msg = uci::type::ActionCommandMT::create(asb);
     for (int i = 0; i < kN; ++i) {
         writer.write(msg);
         reader.read(2000, 1, listener);
     }
 
     writer.close();
+    uci::type::ActionCommandMT::destroy(msg);
     uci::type::ActionCommandMT::destroyWriter(writer);
     reader.close();
     uci::type::ActionCommandMT::destroyReader(reader);

@@ -25,7 +25,7 @@ int main() {
     // Allow DDS reader/writer matching within the same participant.
     std::this_thread::sleep_for(std::chrono::milliseconds(200));
 
-    uci::type::ActionCommandMT msg;
+    auto& msg = uci::type::ActionCommandMT::create(asb);
     writer.write(msg);
 
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
@@ -35,6 +35,7 @@ int main() {
     unsigned long nB = readerB.readNoWait(10, listenerB);
 
     writer.close();
+    uci::type::ActionCommandMT::destroy(msg);
     uci::type::ActionCommandMT::destroyWriter(writer);
     readerA.close();
     uci::type::ActionCommandMT::destroyReader(readerA);

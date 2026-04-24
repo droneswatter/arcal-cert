@@ -29,7 +29,7 @@ int main() {
 
     std::this_thread::sleep_for(std::chrono::milliseconds(200));
 
-    uci::type::ActionCommandMT msg;
+    auto& msg = uci::type::ActionCommandMT::create(asb);
     msg.getMessageHeader().getSchemaVersion().setValue(kSentinel);
     writer.write(msg);
 
@@ -37,6 +37,7 @@ int main() {
     reader.read(2000, 1, listener);
 
     writer.close();
+    uci::type::ActionCommandMT::destroy(msg);
     uci::type::ActionCommandMT::destroyWriter(writer);
     reader.close();
     uci::type::ActionCommandMT::destroyReader(reader);

@@ -36,7 +36,7 @@ int main() {
     std::this_thread::sleep_for(std::chrono::milliseconds(200));
 
     const std::string sentinel = "cal-016015";
-    uci::type::ActionCommandMT msg;
+    auto& msg = uci::type::ActionCommandMT::create(asb1);
     msg.getMessageHeader().getSchemaVersion().setValue(sentinel);
     writer.write(msg);
 
@@ -47,6 +47,7 @@ int main() {
 
     writer.close();
     reader.close();
+    uci::type::ActionCommandMT::destroy(msg);
     uci::type::ActionCommandMT::destroyWriter(writer);
     uci::type::ActionCommandMT::destroyReader(reader);
 

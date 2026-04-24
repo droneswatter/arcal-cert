@@ -23,13 +23,14 @@ int main() {
     // Loopback unicast discovery completes in <10ms; 300ms is generous margin.
     std::this_thread::sleep_for(std::chrono::milliseconds(300));
 
-    uci::type::ActionCommandMT msg;
+    auto& msg = uci::type::ActionCommandMT::create(asb);
     writer.write(msg);
 
     // Give DDS time to deliver before tearing down the participant.
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
     writer.close();
+    uci::type::ActionCommandMT::destroy(msg);
     uci::type::ActionCommandMT::destroyWriter(writer);
 
     asb->shutdown();
