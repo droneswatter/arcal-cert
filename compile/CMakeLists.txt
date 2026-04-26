@@ -19,3 +19,4 @@ add_library(arcal_cert_compile OBJECT
 target_link_libraries(arcal_cert_compile PRIVATE ${ARCAL_CERT_CAL_LIB})
 
 add_custom_target(arcal_cert_compile_all ALL DEPENDS arcal_cert_compile)
+add_dependencies(arcal_cert_suite_all arcal_cert_compile)

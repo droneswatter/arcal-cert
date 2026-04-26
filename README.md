@@ -85,6 +85,18 @@ ctest --test-dir build -R "^CERT-" --output-on-failure
 ctest --test-dir build -R "^E2E-"  --output-on-failure
 ```
 
+When the parent project exposes a subset CAL target, build the suite target
+explicitly before running `ctest`:
+
+```bash
+cmake --build build --target arcal_cert_suite_all -j4
+ctest --test-dir build -R "^(CERT|E2E)-" --output-on-failure
+```
+
+If the parent project wants to run only runtime coverage while compile-only
+API-shape fixes are still in progress, configure with
+`-DARCAL_CERT_BUILD_COMPILE=OFF`.
+
 ## CMake variables reference
 
 | Variable | Required | Description |

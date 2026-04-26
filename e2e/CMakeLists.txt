@@ -4,9 +4,11 @@
 
 add_executable(e2e_pub pub_action_command.cpp)
 target_link_libraries(e2e_pub PRIVATE ${ARCAL_CERT_CAL_LIB})
+add_dependencies(arcal_cert_suite_all e2e_pub)
 
 add_executable(e2e_sub sub_action_command.cpp)
 target_link_libraries(e2e_sub PRIVATE ${ARCAL_CERT_CAL_LIB})
+add_dependencies(arcal_cert_suite_all e2e_sub)
 
 configure_file(run_e2e_action_command.sh.in run_e2e_action_command.sh @ONLY)
 file(CHMOD ${CMAKE_CURRENT_BINARY_DIR}/run_e2e_action_command.sh
@@ -28,6 +30,7 @@ set_tests_properties(E2E-ActionCommand-PubSub PROPERTIES
 
 add_executable(e2e_topic_isolation topic_isolation.cpp)
 target_link_libraries(e2e_topic_isolation PRIVATE ${ARCAL_CERT_CAL_LIB})
+add_dependencies(arcal_cert_suite_all e2e_topic_isolation)
 
 configure_file(run_e2e_topic_isolation.sh.in run_e2e_topic_isolation.sh @ONLY)
 file(CHMOD ${CMAKE_CURRENT_BINARY_DIR}/run_e2e_topic_isolation.sh
@@ -59,6 +62,7 @@ foreach(_test IN ITEMS
 
     add_executable(e2e_${_test} ${_test}.cpp)
     target_link_libraries(e2e_${_test} PRIVATE ${ARCAL_CERT_CAL_LIB})
+    add_dependencies(arcal_cert_suite_all e2e_${_test})
 
     string(REPLACE "_" "-" _test_name "${_test}")
     add_test(NAME E2E-${_test_name} COMMAND e2e_${_test})

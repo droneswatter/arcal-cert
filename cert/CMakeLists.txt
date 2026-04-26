@@ -1,6 +1,7 @@
 function(_arcal_cert_test cert_id)
     add_executable(cert_${cert_id} ${cert_id}.cpp)
     target_link_libraries(cert_${cert_id} PRIVATE ${ARCAL_CERT_CAL_LIB})
+    add_dependencies(arcal_cert_suite_all cert_${cert_id})
     add_test(NAME CERT-${cert_id} COMMAND cert_${cert_id})
     set_tests_properties(CERT-${cert_id} PROPERTIES
         TIMEOUT     8
