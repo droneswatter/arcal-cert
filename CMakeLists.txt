@@ -16,8 +16,9 @@ set(ARCAL_CERT_CAL_LIB "" CACHE STRING
 set(ARCAL_CERT_TEST_ENV "" CACHE STRING
     "Extra environment variables for tests, e.g. 'CYCLONEDDS_URI=...'")
 
-option(ARCAL_CERT_BUILD_CERT "Build CERT conformance tests" ON)
-option(ARCAL_CERT_BUILD_E2E  "Build E2E smoke tests"        ON)
+option(ARCAL_CERT_BUILD_CERT    "Build CERT conformance tests"      ON)
+option(ARCAL_CERT_BUILD_E2E     "Build E2E smoke tests"             ON)
+option(ARCAL_CERT_BUILD_COMPILE "Build compile-only API shape tests" ON)
 # ---------------------------------------------------------------------------
 
 if(NOT ARCAL_CERT_CAL_LIB)
@@ -30,6 +31,9 @@ if(NOT TARGET ${ARCAL_CERT_CAL_LIB})
         "Add it before add_subdirectory(arcal-cert).")
 endif()
 enable_testing()
+if(ARCAL_CERT_BUILD_COMPILE)
+    add_subdirectory(compile)
+endif()
 if(ARCAL_CERT_BUILD_CERT)
     add_subdirectory(cert)
 endif()

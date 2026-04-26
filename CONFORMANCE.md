@@ -45,6 +45,25 @@ exercising portable public-API behavior against the parent implementation.
 | Read timeout | Reader behavior | E2E runtime | [e2e/read_timeout.cpp](e2e/read_timeout.cpp) | covered | Verifies blocking read timeout semantics. |
 | Reader/writer close | Reader/writer lifecycle | E2E runtime | [e2e/reader_writer_close.cpp](e2e/reader_writer_close.cpp) | covered | Verifies read, readNoWait, and write operations throw after close. |
 
+## Compile-Only API Shape Coverage (OMSC-SPC-008 RevK)
+
+These tests verify the public C++ header API shapes mandated by the C++ CAL Spec.
+Successful compilation is the test — no DDS or runtime required.
+Tests with violations present use `#if 0` guards; flip to `#if 1` after fixing the schema compiler.
+
+| Rule family | CERTs covered | Test file | Status | Notes |
+|---|---|---|---|---|
+| Accessor base structure (inheritance, protected lifecycle) | CXX-005456, CXX-011135, CXX-012705, CXX-005464, CXX-005465, CXX-011064 | [compile/conf_base_structure.cpp](compile/conf_base_structure.cpp) | partial | `virtual` inheritance used everywhere (deliberate diamond-avoidance); protected lifecycle PASS. |
+| Factory methods: create/destroy/copy/getUCITypeVersion | CXX-011063, CXX-011066, CXX-011067, CXX-011068, CXX-011410 | [compile/conf_factory_methods.cpp](compile/conf_factory_methods.cpp) | partial | **VIOLATION:** `create()` missing `= nullptr` default arg (CXX-011066/067) across all headers. |
+| Required sequence element get/set pairs | CXX-011213–011220, CXX-011223, CXX-012706–012708 | [compile/conf_required_elements.cpp](compile/conf_required_elements.cpp) | fail | **VIOLATIONS:** setters return `void` not `Parent&` (~5,488 occurrences); simple primitive getters return by ref not value; `const char*` setter overload absent. Failing asserts in `#if 0`. |
+| Optional element has/enable/clear | CXX-011229, CXX-011230, CXX-011231, CXX-012709 | [compile/conf_optional_elements.cpp](compile/conf_optional_elements.cpp) | fail | **VIOLATIONS:** `clearX()` returns `void`; `enableX()` missing `AccessorType` param; `setX()` absent for optional primitives. |
+| BoundedList inner typedef and accessors | CXX-007053, CXX-012712, CXX-012713, CXX-011226–011228 | [compile/conf_bounded_list_elements.cpp](compile/conf_bounded_list_elements.cpp) | fail | **VIOLATIONS:** No inner typedef generated; wrong `accessorType` constant; BoundedList setter absent for all 391 affected fields. |
+| UUID element accessors | CXX-006154, CXX-011054 | [compile/conf_uuid_elements.cpp](compile/conf_uuid_elements.cpp) | covered | PASS. Returns by value, parent-ref setter, no spurious has/enable/clear. Spec example has erroneous void return; generated code correctly follows normative CERT text. |
+| SimpleRestriction typedef pattern | CXX-006143, CXX-006144, CXX-006553 | [compile/conf_simple_restriction.cpp](compile/conf_simple_restriction.cpp) | fail | **VIOLATIONS:** 244 headers (38 numeric, 206 string restrictions) generated as classes instead of `typedef` aliases. |
+| Enumeration accessor shape | CXX-006211, CXX-006240, CXX-006323/340/357/374/391/408, CXX-006417, CXX-006424, CXX-006457, CXX-011062, CXX-011149 | [compile/conf_enum_extended.cpp](compile/conf_enum_extended.cpp) | fail | **VIOLATIONS (8):** Wrong method signatures/names on all 729 `*Enum.h` files. See file for per-CERT detail. |
+| Choice accessor enum naming and methods | CXX-007137, CXX-007138 | [compile/conf_choice_accessor.cpp](compile/conf_choice_accessor.cpp) | fail | **VIOLATIONS:** Enum named `*ChoiceOrdinalEnum` not `*Choice`; values lack type-name prefix; `CHOICE_NONE` not at 0; `setChoiceOrdinal()` absent; `choose()` missing `AccessorType` param. 420 files affected. |
+| MT nested Listener/Reader/Writer shape | CXX-005494/495/499/506, CXX-005546/564/567/608/615/624/653/660, CXX-011072–011080, CXX-012710/711 | [compile/conf_mt_shape.cpp](compile/conf_mt_shape.cpp) | partial | Nested class shapes PASS. CXX-007316 typedef form intentionally not used (incompatible with Reader/Writer API). |
+
 ## Planned Portable Coverage
 
 | Requirement | Area | Test type | Test file | Status | Notes |
