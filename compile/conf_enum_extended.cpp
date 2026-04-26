@@ -17,7 +17,6 @@
 
 using E = uci::type::SystemStateEnum;
 
-#if 0  // TODO(TASK-008, CXX-006211, CXX-011062, CXX-011149, CXX-006240, CXX-006323, CXX-006340, CXX-006357, CXX-006374, CXX-006391, CXX-006408, CXX-006417, CXX-006424, CXX-006457)
 
 // ── CERT CXX-011149 ──────────────────────────────────────────────────────────
 // getValue() must accept bool testForValidity=true as a default parameter.
@@ -150,5 +149,3 @@ void test_wide_stream_operator() {
     wos << e;   // must compile via the template overload
     E::destroy(e);
 }
-
-#endif
