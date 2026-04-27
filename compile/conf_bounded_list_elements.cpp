@@ -169,21 +169,24 @@ static_assert(
     "CXX-011228: CovarianceMatrixType::setCovariance must take const Covariance& and return CovarianceMatrixType&");
 
 // ---------------------------------------------------------------------------
-// CXX-012712: string-restriction BoundedList element —
+// CXX-012713: scalar simple-primitive restriction BoundedList element —
 // CommLink16_ControlType::SecondarySourceTrackNumber
-// Spec requires (element type is a string restriction, maps to xs::String accessor):
-//   typedef uci::base::BoundedList<xs::String,
-//       xs::accessorType::ACCESSOR_TYPE_STRING> SecondarySourceTrackNumber;
+// Schema type is uci:Link16_AddressTrackNumberType, which now aliases
+// uci::base::UnsignedShortAccessor with xs::UnsignedShort as its raw value type.
+// The BoundedList typedef must therefore use the primitive accessor alias and
+// the matching primitive accessorType constant.
+//   typedef uci::base::BoundedList<uci::base::UnsignedShortAccessor,
+//       uci::base::accessorType::shortAccessor> SecondarySourceTrackNumber;
 // ---------------------------------------------------------------------------
 
 static_assert(
     std::is_same_v<
         uci::type::CommLink16_ControlType::SecondarySourceTrackNumber,
         uci::base::BoundedList<
-            xs::String,
-            xs::accessorType::ACCESSOR_TYPE_STRING>
+            uci::base::UnsignedShortAccessor,
+            uci::base::accessorType::shortAccessor>
     >,
-    "CXX-012712: CommLink16_ControlType::SecondarySourceTrackNumber inner typedef must use xs::String / xs::accessorType::ACCESSOR_TYPE_STRING");
+    "CXX-012713: CommLink16_ControlType::SecondarySourceTrackNumber inner typedef must use uci::base::UnsignedShortAccessor / uci::base::accessorType::shortAccessor");
 
 static_assert(
     std::is_same_v<
