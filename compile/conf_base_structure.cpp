@@ -12,12 +12,11 @@
 
 #include "uci/base/Accessor.h"
 #include "uci/type/ID_Type.h"
-#include "uci/type/AccelerationType.h"
-#include "uci/type/VisibleString256Type.h"
 #include "uci/type/MessageType.h"
 #include "uci/type/HeaderType.h"
 #include "uci/type/SecurityInformationType.h"
 #include "uci/type/AMTI_ActivityMDT.h"
+#include "uci/type/TransceiverType.h"
 #include "uci/type/SubsystemID_Type.h"
 #include "uci/type/FileMetadataID_Type.h"
 #include "uci/type/ACO_TraceabilityType.h"
@@ -38,14 +37,6 @@ namespace {
 static_assert(std::is_base_of_v<uci::base::Accessor, uci::type::ID_Type>,
     "CXX-011135: ID_Type must inherit from uci::base::Accessor");
 
-// AccelerationType: simple-primitive type, no extension base
-static_assert(std::is_base_of_v<uci::base::Accessor, uci::type::AccelerationType>,
-    "CXX-011135: AccelerationType must inherit from uci::base::Accessor");
-
-// VisibleString256Type: simple-primitive type, no extension base
-static_assert(std::is_base_of_v<uci::base::Accessor, uci::type::VisibleString256Type>,
-    "CXX-011135: VisibleString256Type must inherit from uci::base::Accessor");
-
 // MessageType: complex type, no extension base
 static_assert(std::is_base_of_v<uci::base::Accessor, uci::type::MessageType>,
     "CXX-011135: MessageType must inherit from uci::base::Accessor");
@@ -61,6 +52,10 @@ static_assert(std::is_base_of_v<uci::base::Accessor, uci::type::SecurityInformat
 // AMTI_ActivityMDT: complex type, no extension base
 static_assert(std::is_base_of_v<uci::base::Accessor, uci::type::AMTI_ActivityMDT>,
     "CXX-011135: AMTI_ActivityMDT must inherit from uci::base::Accessor");
+
+// TransceiverType: complex type, no extension base
+static_assert(std::is_base_of_v<uci::base::Accessor, uci::type::TransceiverType>,
+    "CXX-011135: TransceiverType must inherit from uci::base::Accessor");
 
 // ACO_TraceabilityType: complex type, no extension base
 static_assert(std::is_base_of_v<uci::base::Accessor, uci::type::ACO_TraceabilityType>,
