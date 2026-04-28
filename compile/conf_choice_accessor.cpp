@@ -97,9 +97,8 @@ static_assert(std::is_same_v<
 
 static_assert(std::is_same_v<
     uci::type::EmptyType&,
-    decltype(std::declval<uci::type::StoreCommandType>().chooseVerifyInventory(
-        uci::base::accessorType::null))>,
-    "CXX-012696: chooseVerifyInventory(AccessorType) must compile");
+    decltype(std::declval<uci::type::StoreCommandType>().chooseVerifyInventory())>,
+    "CXX-012696: chooseVerifyInventory() must compile for simple-restriction choice elements");
 
 static_assert(std::is_same_v<
     uci::type::TargetType&,

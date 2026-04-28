@@ -14,8 +14,7 @@ static const std::string kSentinel{"arcal-fidelity-sentinel"};
 struct Listener : public uci::type::ActionCommandMT::Listener {
     std::string receivedSchemaVersion;
     void handleMessage(const uci::type::ActionCommandMT& msg) override {
-        receivedSchemaVersion =
-            msg.getMessageHeader().getSchemaVersion().getValue();
+        receivedSchemaVersion = msg.getMessageHeader().getSchemaVersion();
     }
 };
 
@@ -30,7 +29,7 @@ int main() {
     std::this_thread::sleep_for(std::chrono::milliseconds(200));
 
     auto& msg = uci::type::ActionCommandMT::create(asb);
-    msg.getMessageHeader().getSchemaVersion().setValue(kSentinel);
+    msg.getMessageHeader().getSchemaVersion() = kSentinel;
     writer.write(msg);
 
     Listener listener;

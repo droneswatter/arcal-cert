@@ -14,7 +14,7 @@
 struct Listener : public uci::type::ActionCommandMT::Listener {
     std::string schemaVersion;
     void handleMessage(const uci::type::ActionCommandMT& msg) override {
-        schemaVersion = msg.getMessageHeader().getSchemaVersion().getValue();
+        schemaVersion = msg.getMessageHeader().getSchemaVersion();
     }
 };
 
@@ -37,7 +37,7 @@ int main() {
 
     const std::string sentinel = "cal-016015";
     auto& msg = uci::type::ActionCommandMT::create(asb1);
-    msg.getMessageHeader().getSchemaVersion().setValue(sentinel);
+    msg.getMessageHeader().getSchemaVersion() = sentinel;
     writer.write(msg);
 
     Listener listener;
