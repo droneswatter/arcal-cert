@@ -28,7 +28,7 @@ covered, partial, and planned requirement coverage.
 
 | Test ID | Description |
 |---|---|
-| E2E-ActionCommand-PubSub | Publish + subscribe one ActionCommand message end-to-end |
+| E2E-ServiceStatus-PubSub | Publish + subscribe one ServiceStatus message end-to-end |
 | E2E-TopicIsolation | Messages on one topic are not delivered on another |
 | E2E-content-fidelity | Message content survives CAL publish/subscribe delivery |
 | E2E-multi-message | Multiple sequential messages are all delivered |

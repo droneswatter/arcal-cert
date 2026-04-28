@@ -1,117 +1,90 @@
-// Compile-only conformance: optional element accessor methods
-// OMSC-SPC-008 RevK §9595-9762
-//
-// CERT IDs:
-//   CXX-011229  hasX()
-//   CXX-011230  enableX(AccessorType = null) for complex types
-//   CXX-012709  enableX() for binary/list/simple primitive wrappers
-//   CXX-011231  clearX() -> Parent&
-//   CXX-012708  setX(const T&) -> Parent& for optional primitive fields
+// Compile-only conformance: optional element accessor methods.
 
 #include "uci/base/accessorType.h"
-#include "uci/type/ACO_FileTraceabilityType.h"
-#include "uci/type/ACO_TraceabilityType.h"
-#include "uci/type/ACTDF_CollectionPlanType.h"
-#include "uci/type/ActionActivityType.h"
-#include "uci/type/CommConnectionType.h"
-#include "uci/type/MetricCollectionType.h"
-#include "uci/type/OpPointMT.h"
-#include "uci/type/PO_ComponentStatusFilterType.h"
+#include "uci/type/DateTimeType.h"
+#include "uci/type/EntityFusionEligibilityEnum.h"
+#include "uci/type/PlatformStatusType.h"
+#include "uci/type/PositionReportMDT.h"
+#include "uci/type/ProcessingStatusEnum.h"
+#include "uci/type/SubsystemExtendedStatusPET.h"
+#include "uci/type/SubsystemStatusMDT.h"
+#include "uci/type/SystemIdentityType.h"
+#include "uci/type/SystemStatusMDT.h"
+#include "uci/type/VisibleString256Type.h"
+#include "uci/type/VisibleString32Type.h"
 
 #include <cstdint>
 #include <type_traits>
 
-namespace check_aco_traceability {
-using T = uci::type::ACO_TraceabilityType;
-using ElemType = uci::type::AlphanumericDashSpaceUnderscoreStringLength20Type;
+namespace check_system_status_model {
+using T = uci::type::SystemStatusMDT;
+using ElemType = uci::type::VisibleString32Type;
 
-static_assert(std::is_same_v<bool (T::*)() const, decltype(&T::hasACO_Identifier)>);
-static_assert(std::is_same_v<ElemType& (T::*)(), decltype(&T::enableACO_Identifier)>);
-static_assert(std::is_same_v<T& (T::*)(), decltype(&T::clearACO_Identifier)>);
-static_assert(std::is_same_v<T&, decltype(std::declval<T&>().setACO_Identifier(
+static_assert(std::is_same_v<bool (T::*)() const, decltype(&T::hasModel)>);
+static_assert(std::is_same_v<ElemType& (T::*)(), decltype(&T::enableModel)>);
+static_assert(std::is_same_v<T& (T::*)(), decltype(&T::clearModel)>);
+static_assert(std::is_same_v<T&, decltype(std::declval<T&>().setModel(
     std::declval<const ElemType&>()))>);
 }
 
-namespace check_aco_file_traceability {
-using T = uci::type::ACO_FileTraceabilityType;
-using ElemType = uci::type::FileMetadataID_Type;
+namespace check_system_status_identity {
+using T = uci::type::SystemStatusMDT;
+using ElemType = uci::type::SystemIdentityType;
 
-static_assert(std::is_same_v<bool (T::*)() const, decltype(&T::hasFileID)>);
+static_assert(std::is_same_v<bool (T::*)() const, decltype(&T::hasIdentity)>);
 static_assert(std::is_same_v<
     ElemType& (T::*)(uci::base::accessorType::AccessorType),
-    decltype(&T::enableFileID)>);
-static_assert(std::is_same_v<T& (T::*)(), decltype(&T::clearFileID)>);
+    decltype(&T::enableIdentity)>);
+static_assert(std::is_same_v<T& (T::*)(), decltype(&T::clearIdentity)>);
 }
 
-namespace check_actdf_collection_plan {
-using T = uci::type::ACTDF_CollectionPlanType;
+namespace check_system_status_platform {
+using T = uci::type::SystemStatusMDT;
+using ElemType = uci::type::PlatformStatusType;
 
-static_assert(std::is_same_v<bool (T::*)() const, decltype(&T::hasVersion)>);
-static_assert(std::is_same_v<double& (T::*)(), decltype(&T::enableVersion)>);
-static_assert(std::is_same_v<T& (T::*)(), decltype(&T::clearVersion)>);
-static_assert(std::is_same_v<T&, decltype(std::declval<T&>().setVersion(
-    std::declval<const double&>()))>);
-}
-
-namespace check_metric_collection {
-using T = uci::type::MetricCollectionType;
-using ObsType = uci::type::ObservationsPerTrackLimitsType;
-
-static_assert(std::is_same_v<bool (T::*)() const, decltype(&T::hasNumberOfObservations)>);
+static_assert(std::is_same_v<bool (T::*)() const, decltype(&T::hasPlatformStatus)>);
 static_assert(std::is_same_v<
-    ObsType& (T::*)(uci::base::accessorType::AccessorType),
-    decltype(&T::enableNumberOfObservations)>);
-static_assert(std::is_same_v<T& (T::*)(), decltype(&T::clearNumberOfObservations)>);
-
-static_assert(std::is_same_v<bool (T::*)() const, decltype(&T::hasSpacingOfObservations)>);
-static_assert(std::is_same_v<T& (T::*)(), decltype(&T::clearSpacingOfObservations)>);
-static_assert(std::is_same_v<T&, decltype(std::declval<T&>().setSpacingOfObservations(
-    std::declval<const int32_t&>()))>);
+    ElemType& (T::*)(uci::base::accessorType::AccessorType),
+    decltype(&T::enablePlatformStatus)>);
+static_assert(std::is_same_v<T& (T::*)(), decltype(&T::clearPlatformStatus)>);
 }
 
-namespace check_comm_connection {
-using T = uci::type::CommConnectionType;
+namespace check_subsystem_status_enum {
+using T = uci::type::SubsystemStatusMDT;
+using EnumType = uci::type::ProcessingStatusEnum;
+
+static_assert(std::is_same_v<bool (T::*)() const, decltype(&T::hasEraseStatus)>);
+static_assert(std::is_same_v<EnumType& (T::*)(), decltype(&T::enableEraseStatus)>);
+static_assert(std::is_same_v<T& (T::*)(), decltype(&T::clearEraseStatus)>);
+}
+
+namespace check_subsystem_status_extension {
+using T = uci::type::SubsystemStatusMDT;
+using ElemType = uci::type::SubsystemExtendedStatusPET;
+
+static_assert(std::is_same_v<bool (T::*)() const, decltype(&T::hasExtendedStatus)>);
+static_assert(std::is_same_v<
+    ElemType& (T::*)(uci::base::accessorType::AccessorType),
+    decltype(&T::enableExtendedStatus)>);
+static_assert(std::is_same_v<T& (T::*)(), decltype(&T::clearExtendedStatus)>);
+}
+
+namespace check_position_report_optionals {
+using T = uci::type::PositionReportMDT;
+using StringType = uci::type::VisibleString256Type;
 using DateTimeType = uci::type::DateTimeType;
 
-static_assert(std::is_same_v<bool (T::*)() const, decltype(&T::hasNetworkTime)>);
-// DateTimeType is generated as a string-family simple primitive wrapper in ARCAL,
-// so the RevK primitive-style no-arg enableX() path applies here.
-static_assert(std::is_same_v<DateTimeType& (T::*)(), decltype(&T::enableNetworkTime)>);
-static_assert(std::is_same_v<T& (T::*)(), decltype(&T::clearNetworkTime)>);
+static_assert(std::is_same_v<bool (T::*)() const, decltype(&T::hasDisplayName)>);
+static_assert(std::is_same_v<StringType& (T::*)(), decltype(&T::enableDisplayName)>);
+static_assert(std::is_same_v<T& (T::*)(), decltype(&T::clearDisplayName)>);
 
-static_assert(std::is_same_v<bool (T::*)() const, decltype(&T::hasNetworkTimeUncertaintyRange)>);
-static_assert(std::is_same_v<T& (T::*)(), decltype(&T::clearNetworkTimeUncertaintyRange)>);
-static_assert(std::is_same_v<T&, decltype(std::declval<T&>().setNetworkTimeUncertaintyRange(
-    std::declval<const float&>()))>);
-}
+static_assert(std::is_same_v<bool (T::*)() const, decltype(&T::hasTimestamp)>);
+static_assert(std::is_same_v<DateTimeType& (T::*)(), decltype(&T::enableTimestamp)>);
+static_assert(std::is_same_v<T& (T::*)(), decltype(&T::clearTimestamp)>);
 
-namespace check_po_filter {
-using T = uci::type::PO_ComponentStatusFilterType;
-using BandType = uci::type::PO_ComponentStatusBandpassFrequencyType;
-
-static_assert(std::is_same_v<bool (T::*)() const, decltype(&T::hasBandpassFrequency)>);
-static_assert(std::is_same_v<
-    BandType& (T::*)(uci::base::accessorType::AccessorType),
-    decltype(&T::enableBandpassFrequency)>);
-static_assert(std::is_same_v<T& (T::*)(), decltype(&T::clearBandpassFrequency)>);
-}
-
-namespace check_action_activity {
-using T = uci::type::ActionActivityType;
-using TraceType = uci::type::TraceabilityType;
-
-static_assert(std::is_same_v<bool (T::*)() const, decltype(&T::hasTraceability)>);
-static_assert(std::is_same_v<
-    TraceType& (T::*)(uci::base::accessorType::AccessorType),
-    decltype(&T::enableTraceability)>);
-static_assert(std::is_same_v<T& (T::*)(), decltype(&T::clearTraceability)>);
-}
-
-namespace check_op_point_mt {
-using T = uci::type::OpPointMT;
-using EnumType = uci::type::ObjectStateEnum;
-
-static_assert(std::is_same_v<bool (T::*)() const, decltype(&T::hasObjectState)>);
-static_assert(std::is_same_v<EnumType& (T::*)(), decltype(&T::enableObjectState)>);
-static_assert(std::is_same_v<T& (T::*)(), decltype(&T::clearObjectState)>);
+static_assert(std::is_same_v<bool (T::*)() const, decltype(&T::hasSimulationTargetNumber)>);
+static_assert(std::is_same_v<int64_t& (T::*)(), decltype(&T::enableSimulationTargetNumber)>);
+static_assert(std::is_same_v<T& (T::*)(), decltype(&T::clearSimulationTargetNumber)>);
+static_assert(std::is_same_v<T&, decltype(std::declval<T&>().setSimulationTargetNumber(
+    std::declval<const int64_t&>()))>);
 }

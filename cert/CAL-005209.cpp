@@ -4,7 +4,7 @@
 // both succeed, demonstrating the CAL correctly maps the client-facing name
 // to the underlying DDS topic.
 
-#include "uci/type/ActionCommandMT.h"
+#include "uci/type/ServiceStatusMT.h"
 #include "uci/base/AbstractServiceBusConnection.h"
 #include <cassert>
 #include <iostream>
@@ -14,15 +14,15 @@ int main() {
     assert(asb);
 
 
-    const std::string clientTopic = "MissionActionCommands";
+    const std::string clientTopic = "MissionServiceStatuss";
 
-    auto& writer = uci::type::ActionCommandMT::createWriter(clientTopic, asb);
-    auto& reader = uci::type::ActionCommandMT::createReader(clientTopic, asb);
+    auto& writer = uci::type::ServiceStatusMT::createWriter(clientTopic, asb);
+    auto& reader = uci::type::ServiceStatusMT::createReader(clientTopic, asb);
 
     reader.close();
     writer.close();
-    uci::type::ActionCommandMT::destroyReader(reader);
-    uci::type::ActionCommandMT::destroyWriter(writer);
+    uci::type::ServiceStatusMT::destroyReader(reader);
+    uci::type::ServiceStatusMT::destroyWriter(writer);
 
     asb->shutdown();
     uci_destroyAbstractServiceBusConnection(asb);

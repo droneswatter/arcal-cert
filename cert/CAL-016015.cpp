@@ -4,16 +4,16 @@
 // a distinct Service UUID, and pub/sub between them works correctly.
 
 #include "uci/base/AbstractServiceBusConnection.h"
-#include "uci/type/ActionCommandMT.h"
+#include "uci/type/ServiceStatusMT.h"
 #include <cassert>
 #include <chrono>
 #include <iostream>
 #include <string>
 #include <thread>
 
-struct Listener : public uci::type::ActionCommandMT::Listener {
+struct Listener : public uci::type::ServiceStatusMT::Listener {
     std::string schemaVersion;
-    void handleMessage(const uci::type::ActionCommandMT& msg) override {
+    void handleMessage(const uci::type::ServiceStatusMT& msg) override {
         schemaVersion = msg.getMessageHeader().getSchemaVersion();
     }
 };
@@ -30,13 +30,13 @@ int main() {
 
     assert(uuid1 != uuid2 && "Two distinct service labels must produce distinct Service UUIDs");
 
-    auto& reader = uci::type::ActionCommandMT::createReader("CAL016015Topic", asb2);
-    auto& writer = uci::type::ActionCommandMT::createWriter("CAL016015Topic", asb1);
+    auto& reader = uci::type::ServiceStatusMT::createReader("CAL016015Topic", asb2);
+    auto& writer = uci::type::ServiceStatusMT::createWriter("CAL016015Topic", asb1);
 
     std::this_thread::sleep_for(std::chrono::milliseconds(200));
 
     const std::string sentinel = "cal-016015";
-    auto& msg = uci::type::ActionCommandMT::create(asb1);
+    auto& msg = uci::type::ServiceStatusMT::create(asb1);
     msg.getMessageHeader().getSchemaVersion() = sentinel;
     writer.write(msg);
 
@@ -47,9 +47,9 @@ int main() {
 
     writer.close();
     reader.close();
-    uci::type::ActionCommandMT::destroy(msg);
-    uci::type::ActionCommandMT::destroyWriter(writer);
-    uci::type::ActionCommandMT::destroyReader(reader);
+    uci::type::ServiceStatusMT::destroy(msg);
+    uci::type::ServiceStatusMT::destroyWriter(writer);
+    uci::type::ServiceStatusMT::destroyReader(reader);
 
     asb1->shutdown();
     asb2->shutdown();

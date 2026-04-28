@@ -34,7 +34,7 @@ exercising portable public-API behavior against the parent implementation.
 
 | Behavior | Area | Test type | Test file | Status | Notes |
 |---|---|---|---|---|---|
-| ActionCommand publish/subscribe | Pub/sub | E2E runtime | [e2e/pub_action_command.cpp](e2e/pub_action_command.cpp), [e2e/sub_action_command.cpp](e2e/sub_action_command.cpp), [e2e/run_e2e_action_command.sh.in](e2e/run_e2e_action_command.sh.in) | covered | Two-process publish/subscribe smoke test. |
+| ServiceStatus publish/subscribe | Pub/sub | E2E runtime | [e2e/pub_action_command.cpp](e2e/pub_action_command.cpp), [e2e/sub_action_command.cpp](e2e/sub_action_command.cpp), [e2e/run_e2e_action_command.sh.in](e2e/run_e2e_action_command.sh.in) | covered | Two-process publish/subscribe smoke test. |
 | Topic isolation | Pub/sub | E2E runtime | [e2e/topic_isolation.cpp](e2e/topic_isolation.cpp), [e2e/run_e2e_topic_isolation.sh.in](e2e/run_e2e_topic_isolation.sh.in) | covered | Verifies messages on one topic are not delivered through another topic. |
 | Content fidelity | Accessor round trip | E2E runtime | [e2e/content_fidelity.cpp](e2e/content_fidelity.cpp) | covered | Verifies selected public accessor values survive CAL delivery. |
 | Multiple messages | Reader/writer behavior | E2E runtime | [e2e/multi_message.cpp](e2e/multi_message.cpp) | covered | Verifies multiple sequential messages are delivered. |

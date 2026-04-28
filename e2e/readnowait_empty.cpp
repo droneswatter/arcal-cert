@@ -1,12 +1,12 @@
 // E2E test — readNoWait returns 0 immediately when no messages are available.
 
-#include "uci/type/ActionCommandMT.h"
+#include "uci/type/ServiceStatusMT.h"
 #include "uci/base/AbstractServiceBusConnection.h"
 #include <iostream>
 
-struct Listener : public uci::type::ActionCommandMT::Listener {
+struct Listener : public uci::type::ServiceStatusMT::Listener {
     int received{0};
-    void handleMessage(const uci::type::ActionCommandMT&) override { ++received; }
+    void handleMessage(const uci::type::ServiceStatusMT&) override { ++received; }
 };
 
 int main() {
@@ -14,13 +14,13 @@ int main() {
     if (!asb) { std::cerr << "failed to get ASB\n"; return 1; }
 
 
-    auto& reader = uci::type::ActionCommandMT::createReader("EmptyTopic", asb);
+    auto& reader = uci::type::ServiceStatusMT::createReader("EmptyTopic", asb);
 
     Listener listener;
     unsigned long n = reader.readNoWait(10, listener);
 
     reader.close();
-    uci::type::ActionCommandMT::destroyReader(reader);
+    uci::type::ServiceStatusMT::destroyReader(reader);
     asb->shutdown();
     uci_destroyAbstractServiceBusConnection(asb);
 

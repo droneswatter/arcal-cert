@@ -2,13 +2,13 @@
 // Calls read() with a 300ms timeout on a reader with no publisher and verifies
 // it returns within a reasonable bound.
 
-#include "uci/type/ActionCommandMT.h"
+#include "uci/type/ServiceStatusMT.h"
 #include "uci/base/AbstractServiceBusConnection.h"
 #include <chrono>
 #include <iostream>
 
-struct Listener : public uci::type::ActionCommandMT::Listener {
-    void handleMessage(const uci::type::ActionCommandMT&) override {}
+struct Listener : public uci::type::ServiceStatusMT::Listener {
+    void handleMessage(const uci::type::ServiceStatusMT&) override {}
 };
 
 int main() {
@@ -16,7 +16,7 @@ int main() {
     if (!asb) { std::cerr << "failed to get ASB\n"; return 1; }
 
 
-    auto& reader = uci::type::ActionCommandMT::createReader("TimeoutTopic", asb);
+    auto& reader = uci::type::ServiceStatusMT::createReader("TimeoutTopic", asb);
 
     Listener listener;
     static constexpr unsigned long kTimeoutMs = 300;
@@ -26,7 +26,7 @@ int main() {
         std::chrono::steady_clock::now() - t0).count();
 
     reader.close();
-    uci::type::ActionCommandMT::destroyReader(reader);
+    uci::type::ServiceStatusMT::destroyReader(reader);
     asb->shutdown();
     uci_destroyAbstractServiceBusConnection(asb);
 

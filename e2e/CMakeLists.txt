@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------------------
-# ActionCommand pub/sub (two-process shell test)
+# ServiceStatus pub/sub (two-process shell test)
 # ---------------------------------------------------------------------------
 
 add_executable(e2e_pub pub_action_command.cpp)
@@ -17,9 +17,9 @@ file(CHMOD ${CMAKE_CURRENT_BINARY_DIR}/run_e2e_action_command.sh
                 WORLD_READ WORLD_EXECUTE)
 
 add_test(
-    NAME    E2E-ActionCommand-PubSub
+    NAME    E2E-ServiceStatus-PubSub
     COMMAND ${CMAKE_CURRENT_BINARY_DIR}/run_e2e_action_command.sh)
-set_tests_properties(E2E-ActionCommand-PubSub PROPERTIES
+set_tests_properties(E2E-ServiceStatus-PubSub PROPERTIES
     TIMEOUT     8
     ENVIRONMENT "${ARCAL_CERT_TEST_ENV}"
     LABELS      "e2e;runtime")

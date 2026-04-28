@@ -3,14 +3,14 @@
 // public CAL API.
 
 #include "uci/base/AbstractServiceBusConnection.h"
-#include "uci/type/ActionCommandMT.h"
+#include "uci/type/ServiceStatusMT.h"
 
 #include <cassert>
 #include <exception>
 #include <iostream>
 
-struct Listener : public uci::type::ActionCommandMT::Listener {
-    void handleMessage(const uci::type::ActionCommandMT&) override {}
+struct Listener : public uci::type::ServiceStatusMT::Listener {
+    void handleMessage(const uci::type::ServiceStatusMT&) override {}
 };
 
 template <typename Fn>
@@ -27,14 +27,14 @@ int main() {
     auto* asb = uci_getAbstractServiceBusConnection("e2e_close", "DDS");
     if (!asb) { std::cerr << "failed to get ASB\n"; return 1; }
 
-    auto& reader = uci::type::ActionCommandMT::createReader("CloseLifecycleTopic", asb);
-    auto& writer = uci::type::ActionCommandMT::createWriter("CloseLifecycleTopic", asb);
+    auto& reader = uci::type::ServiceStatusMT::createReader("CloseLifecycleTopic", asb);
+    auto& writer = uci::type::ServiceStatusMT::createWriter("CloseLifecycleTopic", asb);
 
     reader.close();
     writer.close();
 
     Listener listener;
-    auto& msg = uci::type::ActionCommandMT::create(asb);
+    auto& msg = uci::type::ServiceStatusMT::create(asb);
 
     const bool readThrows = throwsException([&] {
         reader.read(10, 1, listener);
@@ -46,9 +46,9 @@ int main() {
         writer.write(msg);
     });
 
-    uci::type::ActionCommandMT::destroy(msg);
-    uci::type::ActionCommandMT::destroyReader(reader);
-    uci::type::ActionCommandMT::destroyWriter(writer);
+    uci::type::ServiceStatusMT::destroy(msg);
+    uci::type::ServiceStatusMT::destroyReader(reader);
+    uci::type::ServiceStatusMT::destroyWriter(writer);
     asb->shutdown();
     uci_destroyAbstractServiceBusConnection(asb);
 

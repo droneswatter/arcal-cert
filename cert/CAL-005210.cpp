@@ -4,7 +4,7 @@
 // without interference; each Client Topic is backed by an independent DDS
 // topic with its own QoS lifecycle.
 
-#include "uci/type/ActionCommandMT.h"
+#include "uci/type/ServiceStatusMT.h"
 #include "uci/base/AbstractServiceBusConnection.h"
 #include <cassert>
 #include <iostream>
@@ -15,13 +15,13 @@ int main() {
 
 
     // Two Client Topics with independent DDS topics — each can carry distinct QoS.
-    auto& readerA = uci::type::ActionCommandMT::createReader("TopicHighPriority", asb);
-    auto& readerB = uci::type::ActionCommandMT::createReader("TopicLowPriority",  asb);
+    auto& readerA = uci::type::ServiceStatusMT::createReader("TopicHighPriority", asb);
+    auto& readerB = uci::type::ServiceStatusMT::createReader("TopicLowPriority",  asb);
 
     readerA.close();
     readerB.close();
-    uci::type::ActionCommandMT::destroyReader(readerA);
-    uci::type::ActionCommandMT::destroyReader(readerB);
+    uci::type::ServiceStatusMT::destroyReader(readerA);
+    uci::type::ServiceStatusMT::destroyReader(readerB);
 
     asb->shutdown();
     uci_destroyAbstractServiceBusConnection(asb);

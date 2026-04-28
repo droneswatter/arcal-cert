@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# E2E smoke test: ActionCommand pub/sub on localhost.
+# E2E smoke test: ServiceStatus pub/sub on localhost.
 # CTest runs this via add_test(); run manually from the build directory as:
 #
 #   bash test/e2e/run_e2e_action_command.sh
