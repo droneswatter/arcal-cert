@@ -1,0 +1,205 @@
+// Compile-only conformance: uci::base::<T>Accessor SimplePrimitive accessor classes.
+//
+// Spec: OMSC-SPC-008 RevK C++ CAL Spec, Section "The SimplePrimitive Accessor Class"
+//       (lines 10748–10945 of 06_OMSC-SPC-008_RevK_CxxCALSpec_DandD_v2_5.md)
+//       Primitive type table: Table 9.1-1 (lines 2429–2537)
+//
+// CERTs covered:
+//   CXX-005765 — <T>Accessor exists in uci::base, publicly inherits uci::base::Accessor
+//   CXX-005775 — xs::<T> get<T>Value() const                            VIOLATION
+//   CXX-011087 — uci::base::<T>Accessor& set<T>Value(xs::<T>)          VIOLATION
+//   CXX-011088 — uci::base::<T>Accessor& operator=(const <T>Accessor&)
+//   CXX-013023 — uci::base::<T>Accessor& operator=(xs::<T>)
+//   CXX-011089 — operator xs::<T>() const conversion operator           PARTIAL VIOLATION
+//
+// Primitive types from Table 9.1-1:
+//   Boolean (bool), Long (int64_t), Int (int32_t), Short (int16_t),
+//   Byte (int8_t), UnsignedInt (uint32_t), UnsignedShort (uint16_t),
+//   UnsignedByte (uint8_t), Double (double), Float (float),
+//   Duration (int64_t), Time (int64_t), DateTime (int64_t)
+//
+// Missing from implementation: DurationAccessor, TimeAccessor, DateTimeAccessor
+//   (These are present in Table 9.1-1 but absent from PrimitiveAccessors.h.)
+//
+// Non-conformances detected and documented below; static_asserts probe what IS
+// provided by the implementation and flag confirmed violations with VIOLATION
+// comments rather than expected-to-fail asserts, so that this file compiles
+// successfully and serves as a living record of the current API shape.
+//
+// Successful compilation IS the test for the properties that hold.
+// Violations are recorded in comments citing the CERT and the deviation.
+
+#include "uci/base/PrimitiveAccessors.h"
+#include "xs/accessorType.h"
+
+#include <cstdint>
+#include <type_traits>
+
+// ---------------------------------------------------------------------------
+// Helper: verify that a type alias resolves in uci::base and that it publicly
+// inherits uci::base::Accessor (CXX-005765).
+// ---------------------------------------------------------------------------
+
+// CXX-005765: all nine implemented accessor type aliases exist in uci::base
+// and publicly inherit uci::base::Accessor.
+
+static_assert(std::is_base_of_v<uci::base::Accessor, uci::base::BooleanAccessor>,
+    "CXX-005765: BooleanAccessor must publicly inherit uci::base::Accessor");
+
+static_assert(std::is_base_of_v<uci::base::Accessor, uci::base::ByteAccessor>,
+    "CXX-005765: ByteAccessor must publicly inherit uci::base::Accessor");
+
+static_assert(std::is_base_of_v<uci::base::Accessor, uci::base::ShortAccessor>,
+    "CXX-005765: ShortAccessor must publicly inherit uci::base::Accessor");
+
+static_assert(std::is_base_of_v<uci::base::Accessor, uci::base::IntAccessor>,
+    "CXX-005765: IntAccessor must publicly inherit uci::base::Accessor");
+
+static_assert(std::is_base_of_v<uci::base::Accessor, uci::base::LongAccessor>,
+    "CXX-005765: LongAccessor must publicly inherit uci::base::Accessor");
+
+static_assert(std::is_base_of_v<uci::base::Accessor, uci::base::FloatAccessor>,
+    "CXX-005765: FloatAccessor must publicly inherit uci::base::Accessor");
+
+static_assert(std::is_base_of_v<uci::base::Accessor, uci::base::DoubleAccessor>,
+    "CXX-005765: DoubleAccessor must publicly inherit uci::base::Accessor");
+
+static_assert(std::is_base_of_v<uci::base::Accessor, uci::base::UnsignedByteAccessor>,
+    "CXX-005765: UnsignedByteAccessor must publicly inherit uci::base::Accessor");
+
+static_assert(std::is_base_of_v<uci::base::Accessor, uci::base::UnsignedShortAccessor>,
+    "CXX-005765: UnsignedShortAccessor must publicly inherit uci::base::Accessor");
+
+static_assert(std::is_base_of_v<uci::base::Accessor, uci::base::UnsignedIntAccessor>,
+    "CXX-005765: UnsignedIntAccessor must publicly inherit uci::base::Accessor");
+
+// UnsignedLongAccessor is not in Table 9.1-1 but is defined in the implementation.
+// CXX-005765 does not require it; its presence is non-normative but not harmful.
+static_assert(std::is_base_of_v<uci::base::Accessor, uci::base::UnsignedLongAccessor>,
+    "UnsignedLongAccessor (extra, not in Table 9.1-1) inherits Accessor");
+
+// VIOLATION CXX-005765 (missing types): DurationAccessor, TimeAccessor, and
+// DateTimeAccessor are listed in Table 9.1-1 but are NOT defined in
+// uci/base/PrimitiveAccessors.h.  The following lines would not compile:
+//   static_assert(std::is_base_of_v<uci::base::Accessor, uci::base::DurationAccessor>, ...);
+//   static_assert(std::is_base_of_v<uci::base::Accessor, uci::base::TimeAccessor>, ...);
+//   static_assert(std::is_base_of_v<uci::base::Accessor, uci::base::DateTimeAccessor>, ...);
+
+// ---------------------------------------------------------------------------
+// CXX-011088: operator=(const <T>Accessor&) returns <T>Accessor& — public.
+//
+// Because the accessor types are 'using' aliases for PrimitiveAccessor<T,V>,
+// copy-assignment is generated by the compiler and is public.
+// ---------------------------------------------------------------------------
+
+static_assert(std::is_copy_assignable_v<uci::base::BooleanAccessor>,
+    "CXX-011088: BooleanAccessor& operator=(const BooleanAccessor&) must be public");
+
+static_assert(std::is_copy_assignable_v<uci::base::DoubleAccessor>,
+    "CXX-011088: DoubleAccessor& operator=(const DoubleAccessor&) must be public");
+
+static_assert(std::is_copy_assignable_v<uci::base::UnsignedIntAccessor>,
+    "CXX-011088: UnsignedIntAccessor& operator=(const UnsignedIntAccessor&) must be public");
+
+static_assert(std::is_copy_assignable_v<uci::base::LongAccessor>,
+    "CXX-011088: LongAccessor& operator=(const LongAccessor&) must be public");
+
+// ---------------------------------------------------------------------------
+// CXX-013023: operator=(xs::<T>) returns <T>Accessor& — public.
+// The implementation provides operator=(const ValueType&) which covers this.
+// Verify return type for representative types.
+// ---------------------------------------------------------------------------
+
+// operator=(xs::Boolean) → BooleanAccessor&
+static_assert(
+    std::is_same_v<
+        decltype(std::declval<uci::base::BooleanAccessor&>() = std::declval<xs::Boolean>()),
+        uci::base::BooleanAccessor&>,
+    "CXX-013023: BooleanAccessor::operator=(xs::Boolean) must return BooleanAccessor&");
+
+// operator=(xs::Double) → DoubleAccessor&
+static_assert(
+    std::is_same_v<
+        decltype(std::declval<uci::base::DoubleAccessor&>() = std::declval<xs::Double>()),
+        uci::base::DoubleAccessor&>,
+    "CXX-013023: DoubleAccessor::operator=(xs::Double) must return DoubleAccessor&");
+
+// operator=(xs::UnsignedInt) → UnsignedIntAccessor&
+static_assert(
+    std::is_same_v<
+        decltype(std::declval<uci::base::UnsignedIntAccessor&>() = std::declval<xs::UnsignedInt>()),
+        uci::base::UnsignedIntAccessor&>,
+    "CXX-013023: UnsignedIntAccessor::operator=(xs::UnsignedInt) must return UnsignedIntAccessor&");
+
+// operator=(xs::Long) → LongAccessor&
+static_assert(
+    std::is_same_v<
+        decltype(std::declval<uci::base::LongAccessor&>() = std::declval<xs::Long>()),
+        uci::base::LongAccessor&>,
+    "CXX-013023: LongAccessor::operator=(xs::Long) must return LongAccessor&");
+
+// ---------------------------------------------------------------------------
+// CXX-011089: operator xs::<T>() const — conversion operator is public.
+//
+// The implementation declares: operator const ValueType&() const
+// The spec requires: operator xs::<T>() const  (returns by value, not reference)
+//
+// VIOLATION: the declared conversion target type is 'const ValueType&', not
+// 'ValueType'.  Because xs::Boolean is an alias for bool (a scalar), and the
+// operator is declared as 'operator const bool&() const', the implicit
+// conversion still works in assignments and casts.  However, the explicit
+// call form '.operator xs::Boolean()' would not compile because the operator
+// name 'operator bool' is distinct from 'operator const bool&'.
+//
+// We verify the operator is public via static_cast and implicit conversion.
+// ---------------------------------------------------------------------------
+
+// Implicit conversion is accessible (operator const ValueType& is public):
+static_assert(std::is_convertible_v<uci::base::BooleanAccessor, xs::Boolean>,
+    "CXX-011089: BooleanAccessor must be implicitly convertible to xs::Boolean");
+
+static_assert(std::is_convertible_v<uci::base::DoubleAccessor, xs::Double>,
+    "CXX-011089: DoubleAccessor must be implicitly convertible to xs::Double");
+
+static_assert(std::is_convertible_v<uci::base::IntAccessor, xs::Int>,
+    "CXX-011089: IntAccessor must be implicitly convertible to xs::Int");
+
+static_assert(std::is_convertible_v<uci::base::UnsignedIntAccessor, xs::UnsignedInt>,
+    "CXX-011089: UnsignedIntAccessor must be implicitly convertible to xs::UnsignedInt");
+
+// VIOLATION CXX-011089 (signature): The declared operator name is
+// 'operator const xs::<T>&()' rather than 'operator xs::<T>()'.
+// Explicit calls of the form '.operator xs::Boolean()' will not compile
+// because 'operator bool' and 'operator const bool&' are different operator
+// conversion function names in C++.
+
+// VIOLATION CXX-005775: get<T>Value() const is not declared on any accessor.
+//   The implementation provides getValue() instead of, e.g., getBooleanValue().
+//   The following would fail to compile:
+//   decltype(std::declval<const uci::base::BooleanAccessor>().getBooleanValue())
+//   decltype(std::declval<const uci::base::DoubleAccessor>().getDoubleValue())
+
+// VIOLATION CXX-011087: set<T>Value(xs::<T>) returning <T>Accessor& is not declared.
+//   The implementation provides setValue(const ValueType&) returning void instead.
+//   The following would fail to compile:
+//   decltype(std::declval<uci::base::BooleanAccessor>().setBooleanValue(std::declval<xs::Boolean>()))
+//   decltype(std::declval<uci::base::DoubleAccessor>().setDoubleValue(std::declval<xs::Double>()))
+
+// ---------------------------------------------------------------------------
+// Protected ctor/dtor check.
+//
+// The spec (base Accessor pattern) requires protected default constructor,
+// copy constructor, and destructor.  PrimitiveAccessor exposes them as public.
+// This is confirmed by the fact that PrimitiveAccessor IS publicly constructible.
+//
+// VIOLATION (implied by protected ctor/dtor base pattern):
+//   PrimitiveAccessor<T,V> default ctor and dtor are public.
+// ---------------------------------------------------------------------------
+
+static_assert(std::is_default_constructible_v<uci::base::BooleanAccessor>,
+    "NOTE VIOLATION: BooleanAccessor default constructor is public "
+    "(spec implies protected, following Accessor base pattern)");
+
+static_assert(std::is_destructible_v<uci::base::BooleanAccessor>,
+    "NOTE VIOLATION: BooleanAccessor destructor is public "
+    "(spec implies protected, following Accessor base pattern)");

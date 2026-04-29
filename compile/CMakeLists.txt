@@ -3,16 +3,25 @@
 # Each file targets one rule family and cites its CERT IDs in a leading comment.
 
 add_library(arcal_cert_compile OBJECT
+    conf_accessor_base.cpp
+    conf_base_reader_writer.cpp
     conf_base_structure.cpp
+    conf_externalizer.cpp
     conf_factory_methods.cpp
     conf_required_elements.cpp
     conf_optional_elements.cpp
     conf_bounded_list_elements.cpp
+    conf_bounded_list_shape.cpp
     conf_uuid_elements.cpp
+    conf_uuid_class.cpp
     conf_simple_restriction.cpp
     conf_enum_extended.cpp
     conf_choice_accessor.cpp
     conf_mt_shape.cpp
+    conf_string_accessor.cpp
+    conf_asb_connection.cpp
+    conf_simple_list.cpp
+    conf_primitive_accessors.cpp
 )
 
 # Inherit include directories from the CAL library target (uci/base/*, uci/type/*).
