@@ -63,6 +63,8 @@ static_assert(sizeof(uci::base::Reader) > 0,
 // CXX-011094: Reader dtor must be protected (not destructible from outside)
 static_assert(!std::is_destructible_v<uci::base::Reader>,
     "CERT CXX-011094: ~uci::base::Reader() must be protected");
+static_assert(!std::has_virtual_destructor_v<uci::base::Reader>,
+    "CERT CXX-011094: uci::base::Reader base destructor must be non-virtual");
 
 // CXX-010763: Reader default ctor must be protected
 static_assert(!std::is_default_constructible_v<uci::base::Reader>,
@@ -85,6 +87,8 @@ static_assert(sizeof(uci::base::Writer) > 0,
 // CXX-011095: Writer dtor must be protected (not destructible from outside)
 static_assert(!std::is_destructible_v<uci::base::Writer>,
     "CERT CXX-011095: ~uci::base::Writer() must be protected");
+static_assert(!std::has_virtual_destructor_v<uci::base::Writer>,
+    "CERT CXX-011095: uci::base::Writer base destructor must be non-virtual");
 
 // CXX-010822: Writer default ctor must be protected
 static_assert(!std::is_default_constructible_v<uci::base::Writer>,

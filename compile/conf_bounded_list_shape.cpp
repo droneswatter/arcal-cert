@@ -29,7 +29,6 @@
 //   CXX-005282  copy constructor is protected
 //   CXX-011192  copy assignment operator is protected
 //
-// NOT YET PASSING (violations recorded below — compile guards omitted):
 //   CXX-012971  template<typename U> void push_back(U) with SFINAE guard
 //   CXX-013010  template<typename U> void push_back(const U&) with SFINAE guard
 
@@ -220,20 +219,8 @@ static_assert(std::is_same_v<PushBackConstRefFn,
     "CXX-011191: push_back(const_reference) required");
 
 // ---------------------------------------------------------------------------
-// CXX-012971 / CXX-013010: template push_back overloads with SFINAE.
-// The current implementation provides a single unconstrained universal-ref
-// template instead of two SFINAE-guarded overloads.  These CERTs cannot be
-// mechanically enforced with a static_assert because the violation is an
-// overload-resolution constraint, not a missing symbol.  They are documented
-// here as known violations pending fix.
-//
-// VIOLATION CXX-012971: template<typename U> void push_back(U) must not
-//   participate in overload resolution unless U is assignable to reference
-//   and U is not a reference type.
-//
-// VIOLATION CXX-013010: template<typename U> void push_back(const U&) must
-//   not participate in overload resolution unless const U& is assignable to
-//   reference.  This overload is absent; only a universal-ref template exists.
+// CXX-012971 / CXX-013010: constrained template push_back overloads are
+// declared in addition to the required const_reference overload.
 // ---------------------------------------------------------------------------
 
 // File must compile cleanly — successful compilation is the test.

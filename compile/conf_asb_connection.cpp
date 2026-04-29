@@ -27,21 +27,6 @@
 // CERT CXX-011083  — public void removeStatusListener(AbstractServiceBusConnectionStatusListener&)
 // CERT CXX-005433  — free function uci_getAbstractServiceBusConnection in global namespace
 //
-// KNOWN VIOLATIONS (compile errors produced when CHECK_VIOLATIONS is defined):
-//
-//   CXX-011275 / CXX-011277 / CXX-011279:
-//     The spec requires the nested type names:
-//       uci::base::AbstractServiceBusConnection::AbstractServiceBusConnectionStatusData
-//       uci::base::AbstractServiceBusConnection::AbstractServiceBusConnectionStateEnum
-//     The header exposes only type aliases "StatusData" and "StateEnum", and the
-//     underlying types live in AbstractServiceBusConnectionStatusListener.h (as
-//     AbstractServiceBusConnectionStatusData::StateEnum), not as nested members of
-//     AbstractServiceBusConnection under the spec-mandated names.
-//
-//   CXX-011295:
-//     getStatus() returns ASB::StatusData, not the spec-required
-//     ASB::AbstractServiceBusConnectionStatusData return type name.
-
 #include "uci/base/AbstractServiceBusConnection.h"
 
 #include <string>
@@ -99,10 +84,7 @@ std::string (ASB::*p_apiVer)()  const = &ASB::getOMSApiVersion;
 std::string (ASB::*p_asbVer)()  const = &ASB::getAbstractServiceBusConnectionVersion;
 
 // CERT CXX-011295: AbstractServiceBusConnectionStatusData getStatus() const
-//   NOTE: return type here uses the alias "StatusData"; the spec requires the
-//   nested type to be named AbstractServiceBusConnectionStatusData.
-//   Functional behaviour is present; naming non-conformance is recorded above.
-ASB::StatusData (ASB::*p_status)() const = &ASB::getStatus;
+ASB::AbstractServiceBusConnectionStatusData (ASB::*p_status)() const = &ASB::getStatus;
 
 // CERT CXX-011082: void addStatusListener(AbstractServiceBusConnectionStatusListener&)
 void (ASB::*p_addListener)(uci::base::AbstractServiceBusConnectionStatusListener&)
@@ -127,22 +109,15 @@ void use_all() {
     (void)p_getASB;
 }
 
-// ── CERTs CXX-011275 / CXX-011277 / CXX-011279 — VIOLATION PROBES ───────────
-// The block below documents that the spec-required nested names do NOT exist.
-// Un-comment CHECK_VIOLATIONS to confirm the compiler rejects them.
-#ifdef CHECK_VIOLATIONS
-
 // CXX-011277: must be a nested type named AbstractServiceBusConnectionStatusData
-using SpecStatusData = ASB::AbstractServiceBusConnectionStatusData; // expected: compile error
+using SpecStatusData = ASB::AbstractServiceBusConnectionStatusData;
 
 // CXX-011275: must be a member enum named AbstractServiceBusConnectionStateEnum
-using SpecStateEnum  = ASB::AbstractServiceBusConnectionStateEnum;  // expected: compile error
+using SpecStateEnum  = ASB::AbstractServiceBusConnectionStateEnum;
 
 // CXX-011279: state field type must be AbstractServiceBusConnectionStateEnum
 static_assert(std::is_same_v<
     decltype(ASB::AbstractServiceBusConnectionStatusData::state),
-    ASB::AbstractServiceBusConnectionStateEnum>);                    // expected: compile error
-
-#endif // CHECK_VIOLATIONS
+    ASB::AbstractServiceBusConnectionStateEnum>);
 
 } // namespace

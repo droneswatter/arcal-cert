@@ -99,7 +99,10 @@ constexpr UUID::Variant v1 = UUID::variantMicrosoft;
 constexpr UUID::Variant v2 = UUID::variantCurrent;
 constexpr UUID::Variant v3 = UUID::variantFuture;
 constexpr UUID::Variant v4 = UUID::variantUnknown;
-(void)v0; (void)v1; (void)v2; (void)v3; (void)v4;
+static_assert(v0 == UUID::variantNCS && v1 == UUID::variantMicrosoft &&
+              v2 == UUID::variantCurrent && v3 == UUID::variantFuture &&
+              v4 == UUID::variantUnknown,
+    "CXX-005316: all required UUID::Variant enumerators must compile");
 
 // ── CXX-005317: Version enum enumerators ─────────────────────────────────────
 static_assert(std::is_enum_v<UUID::Version>,
@@ -111,7 +114,11 @@ constexpr UUID::Version ver3 = UUID::versionNameBasedMD5;
 constexpr UUID::Version ver4 = UUID::versionRandomNumber;
 constexpr UUID::Version ver5 = UUID::versionNameBasedSHA1;
 constexpr UUID::Version ver6 = UUID::versionUnknown;
-(void)ver0; (void)ver1; (void)ver2; (void)ver3; (void)ver4; (void)ver5; (void)ver6;
+static_assert(ver0 == UUID::versionNil && ver1 == UUID::versionTimeBased &&
+              ver2 == UUID::versionDceSecurity && ver3 == UUID::versionNameBasedMD5 &&
+              ver4 == UUID::versionRandomNumber && ver5 == UUID::versionNameBasedSHA1 &&
+              ver6 == UUID::versionUnknown,
+    "CXX-005317: all required UUID::Version enumerators must compile");
 
 // ── CXX-005318: ValueUUID struct ─────────────────────────────────────────────
 static_assert(std::is_class_v<UUID::ValueUUID>,

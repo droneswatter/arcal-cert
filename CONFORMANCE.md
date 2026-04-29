@@ -49,20 +49,21 @@ exercising portable public-API behavior against the parent implementation.
 
 These tests verify the public C++ header API shapes mandated by the C++ CAL Spec.
 Successful compilation is the test — no DDS or runtime required.
-Tests with violations present use `#if 0` guards; flip to `#if 1` after fixing the schema compiler.
+Successful compilation is the test; conformance gaps should be represented by
+active failing checks, not hidden behind preprocessor guards.
 
 | Rule family | CERTs covered | Test file | Status | Notes |
 |---|---|---|---|---|
-| Accessor base structure (inheritance, protected lifecycle) | CXX-005456, CXX-011135, CXX-012705, CXX-005464, CXX-005465, CXX-011064 | [compile/conf_base_structure.cpp](compile/conf_base_structure.cpp) | partial | `virtual` inheritance used everywhere (deliberate diamond-avoidance); protected lifecycle PASS. |
+| Accessor base structure (inheritance, protected lifecycle) | CXX-005456, CXX-011135, CXX-012705, CXX-005464, CXX-005465, CXX-011064 | [compile/conf_base_structure.cpp](compile/conf_base_structure.cpp) | covered | PASS. Covered accessor classes inherit the required base types and expose protected lifecycle. |
 | Factory methods: create/destroy/copy/getUCITypeVersion | CXX-011063, CXX-011066, CXX-011067, CXX-011068, CXX-011410 | [compile/conf_factory_methods.cpp](compile/conf_factory_methods.cpp) | covered | PASS. `copy`, `create`, copy-create, `destroy`, and `getUCITypeVersion()` all match the expected generated shape, including default `= nullptr` support. |
 | Required sequence element get/set pairs | CXX-011213–011220, CXX-011223, CXX-012706–012708 | [compile/conf_required_elements.cpp](compile/conf_required_elements.cpp) | covered | PASS. Required complex, primitive, string-family, and enum fields expose the expected getter/setter signatures in current generated headers. |
 | Optional element has/enable/clear | CXX-011229, CXX-011230, CXX-011231, CXX-012709 | [compile/conf_optional_elements.cpp](compile/conf_optional_elements.cpp) | covered | PASS. Optional complex and primitive-style fields expose the expected `has`, `enable`, `clear`, and `set` signatures covered by the compile checks. |
 | BoundedList inner typedef and accessors | CXX-007053, CXX-012712, CXX-012713, CXX-011226–011228 | [compile/conf_bounded_list_elements.cpp](compile/conf_bounded_list_elements.cpp) | covered | PASS. Inner typedef, correct accessorType constant, and setter generated for all BoundedList fields (TASK-005). |
 | UUID element accessors | CXX-006154, CXX-011054 | [compile/conf_uuid_elements.cpp](compile/conf_uuid_elements.cpp) | covered | PASS. Returns by value, parent-ref setter, no spurious has/enable/clear. Spec example has erroneous void return; generated code correctly follows normative CERT text. |
 | SimpleRestriction typedef pattern | CXX-006143, CXX-006144, CXX-006553 | [compile/conf_simple_restriction.cpp](compile/conf_simple_restriction.cpp) | covered | PASS. Non-enum `xs:restriction` types now generate typedef aliases, with companion `*Value` aliases for scalar restrictions. |
-| Enumeration accessor shape | CXX-006211, CXX-006240, CXX-006323/340/357/374/391/408, CXX-006417, CXX-006424, CXX-006457, CXX-011062, CXX-011149 | [compile/conf_enum_extended.cpp](compile/conf_enum_extended.cpp) | fail | **VIOLATIONS (8):** Wrong method signatures/names on all 729 `*Enum.h` files. See file for per-CERT detail. |
+| Enumeration accessor shape | CXX-006211, CXX-006240, CXX-006323/340/357/374/391/408, CXX-006417, CXX-006424, CXX-006457, CXX-011062, CXX-011149 | [compile/conf_enum_extended.cpp](compile/conf_enum_extended.cpp) | covered | PASS. Extended enum API shape matches the RevK requirements covered by this compile test. |
 | Choice accessor enum naming and methods | CXX-007137, CXX-007138, CXX-011109, CXX-011110, CXX-012695, CXX-012696 | [compile/conf_choice_accessor.cpp](compile/conf_choice_accessor.cpp) | covered | PASS. Enum renamed to `<T>Choice`; values use `<TYPENAME>_CHOICE_` prefix; `CHOICE_NONE = 0` first; `setChoiceOrdinal()` added; `choose()` accepts `AccessorType = null` for complex elements, while simple-restriction choice branches remain zero-argument (TASK-009). |
-| MT nested Listener/Reader/Writer shape | CXX-005494/495/499/506, CXX-005546/564/567/608/615/624/653/660, CXX-011072–011080, CXX-012710/711 | [compile/conf_mt_shape.cpp](compile/conf_mt_shape.cpp) | partial | Nested class shapes PASS. CXX-007316 typedef form intentionally not used (incompatible with Reader/Writer API). |
+| MT nested Listener/Reader/Writer shape | CXX-005494/495/499/506, CXX-005546/564/567/608/615/624/653/660, CXX-011072–011080, CXX-012710/711 | [compile/conf_mt_shape.cpp](compile/conf_mt_shape.cpp) | covered | PASS. Nested Listener/Reader/Writer lifecycle and factory-access shape are covered. |
 
 ## Planned Portable Coverage
 

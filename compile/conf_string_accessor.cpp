@@ -6,12 +6,9 @@
 //   CXX-005002 — StringAccessor inherits publicly from uci::base::Accessor
 //   CXX-012700 — destructor is protected (not publicly destructible)
 //   CXX-005008 — public const member function std::string str() const
-//                VIOLATION: header returns const std::string& not std::string
 //   CXX-005009 — public const member function const char* c_str() const
 //   CXX-011141 — public non-static member function StringAccessor& setStringValue(const std::string&)
-//                VIOLATION: header returns void
 //   CXX-011142 — public non-static member function StringAccessor& setStringValue(const char*)
-//                VIOLATION: header returns void
 //   CXX-011143 — public non-static member function StringAccessor& operator=(const StringAccessor&)
 //   CXX-011144 — public non-static member function StringAccessor& operator=(const std::string&)
 //   CXX-011145 — public non-static member function StringAccessor& operator=(const char*)

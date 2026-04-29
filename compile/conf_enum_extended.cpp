@@ -5,10 +5,7 @@
 //               CXX-006457
 // Reference type: uci::type::SystemStateEnum
 //
-// Pending in ARCAL conformance plan:
-//   - TASK-008 extended enum surface
-// The baseline enum checks remain enabled in conf_enum.cpp.  This file is kept
-// as disabled future coverage until ARCAL implements the additional RevK API.
+// Successful compilation verifies the extended RevK enum surface.
 #include "uci/type/SystemStateEnum.h"
 #include <ostream>
 #include <sstream>
