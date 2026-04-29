@@ -3,14 +3,15 @@
 // class' API notification method with the current state of the ASB connection.
 
 #include "uci/base/AbstractServiceBusConnection.h"
+#include "uci/base/AbstractServiceBusConnectionStatusListener.h"
 #include <cassert>
 #include <iostream>
 
 struct TestListener : public uci::base::AbstractServiceBusConnectionStatusListener {
     int callCount{0};
-    uci::base::AbstractServiceBusConnectionStatusData lastStatus;
+    uci::base::AbstractServiceBusConnection::AbstractServiceBusConnectionStatusData lastStatus;
 
-    void statusChanged(uci::base::AbstractServiceBusConnectionStatusData s) override {
+    void statusChanged(uci::base::AbstractServiceBusConnection::AbstractServiceBusConnectionStatusData s) override {
         ++callCount;
         lastStatus = s;
     }
@@ -27,7 +28,7 @@ int main() {
 
     // Must be called synchronously (or before addStatusListener returns) with current state
     assert(listener.callCount >= 1 && "Listener must be called immediately upon registration");
-    assert(listener.lastStatus.state == uci::base::AbstractServiceBusConnectionStatusData::NORMAL);
+    assert(listener.lastStatus.state == uci::base::AbstractServiceBusConnection::NORMAL);
 
     TestListener removedListener;
     TestListener secondListener;
@@ -40,8 +41,8 @@ int main() {
     asb->removeStatusListener(removedListener);
 
     asb->shutdown();
-    assert(listener.lastStatus.state == uci::base::AbstractServiceBusConnectionStatusData::FAILED);
-    assert(secondListener.lastStatus.state == uci::base::AbstractServiceBusConnectionStatusData::FAILED);
+    assert(listener.lastStatus.state == uci::base::AbstractServiceBusConnection::FAILED);
+    assert(secondListener.lastStatus.state == uci::base::AbstractServiceBusConnection::FAILED);
     assert(removedListener.callCount == removedCountBeforeShutdown
            && "removed listener must not receive later state changes");
 

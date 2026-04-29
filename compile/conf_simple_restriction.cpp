@@ -26,5 +26,5 @@ static_assert(std::is_same_v<decltype(std::declval<uci::type::PriorityRankType&>
 
 static_assert(std::is_same_v<uci::type::VisibleString256Type, xs::String>);
 static_assert(std::is_same_v<uci::type::VisibleString32Type, xs::String>);
-static_assert(std::is_same_v<uci::type::DurationType, xs::Duration>);
-static_assert(std::is_same_v<uci::type::DateTimeType, xs::DateTime>);
+static_assert(std::is_same_v<uci::type::DurationType, uci::base::DurationAccessor>);
+static_assert(std::is_same_v<uci::type::DateTimeType, uci::base::DateTimeAccessor>);

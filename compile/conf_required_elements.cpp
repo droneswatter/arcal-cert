@@ -14,7 +14,6 @@
 #include "uci/type/SystemStateEnum.h"
 #include "uci/type/SystemStatusMDT.h"
 
-#include <string>
 #include <type_traits>
 
 static_assert(std::is_same_v<
@@ -29,15 +28,15 @@ static_assert(std::is_same_v<
         std::declval<const uci::type::ServiceID_Type&>()))>);
 
 static_assert(std::is_same_v<
-    std::string&,
+    uci::type::DurationType&,
     decltype(std::declval<uci::type::ServiceStatusMDT&>().getTimeUp())>);
 static_assert(std::is_same_v<
-    const std::string&,
+    const uci::type::DurationType&,
     decltype(std::declval<const uci::type::ServiceStatusMDT&>().getTimeUp())>);
 static_assert(std::is_same_v<
     uci::type::ServiceStatusMDT&,
     decltype(std::declval<uci::type::ServiceStatusMDT&>().setTimeUp(
-        std::declval<const std::string&>()))>);
+        std::declval<const uci::type::DurationType&>()))>);
 
 static_assert(std::is_same_v<
     uci::type::ServiceStatusMDT&,

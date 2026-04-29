@@ -43,7 +43,7 @@ static_assert(!std::is_copy_constructible_v<ASB>,    "CXX-005432: copy ctor must
 static_assert(!std::is_copy_assignable_v<ASB>,       "CXX-011177: assignment op must be protected");
 
 // ── CERT CXX-011281: StatusData struct has a std::string "stateDetail" field
-static_assert(std::is_same_v<decltype(ASB::StatusData::stateDetail), std::string>,
+static_assert(std::is_same_v<decltype(ASB::AbstractServiceBusConnectionStatusData::stateDetail), std::string>,
     "CXX-011281: stateDetail must be std::string");
 
 namespace {

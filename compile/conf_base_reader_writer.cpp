@@ -124,7 +124,7 @@ static_assert(
 // method signature matches what the spec requires).
 struct ConcreteStatusListener : public uci::base::AbstractServiceBusConnectionStatusListener {
     void statusChanged(
-        uci::base::AbstractServiceBusConnectionStatusData /*newStatus*/) override {}
+        uci::base::AbstractServiceBusConnection::AbstractServiceBusConnectionStatusData /*newStatus*/) override {}
 };
 
 static_assert(!std::is_abstract_v<ConcreteStatusListener>,

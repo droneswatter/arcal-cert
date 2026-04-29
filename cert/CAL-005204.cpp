@@ -7,11 +7,13 @@
 // delivery agree on the error state.
 
 #include "uci/base/AbstractServiceBusConnection.h"
+#include "uci/base/AbstractServiceBusConnectionStatusListener.h"
 #include <cassert>
 #include <iostream>
 
-using State    = uci::base::AbstractServiceBusConnectionStatusData::StateEnum;
-using StatusData = uci::base::AbstractServiceBusConnectionStatusData;
+using ASB = uci::base::AbstractServiceBusConnection;
+using State = ASB::AbstractServiceBusConnectionStateEnum;
+using StatusData = ASB::AbstractServiceBusConnectionStatusData;
 
 struct ErrorListener : public uci::base::AbstractServiceBusConnectionStatusListener {
     State lastState{State::INITIALIZING};

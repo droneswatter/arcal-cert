@@ -11,18 +11,18 @@ int main() {
 
     // Instance must be in NORMAL state after initialization
     auto status = asb->getStatus();
-    assert(status.state == uci::base::AbstractServiceBusConnectionStatusData::NORMAL
+    assert(status.state == uci::base::AbstractServiceBusConnection::NORMAL
            && "ASB must be NORMAL after successful initialization");
 
     // Service UUID must be valid (non-nil)
     assert(asb->getMyServiceUUID().isValid() && "Service UUID must be valid after init");
 
     asb->shutdown();
-    assert(asb->getStatus().state == uci::base::AbstractServiceBusConnectionStatusData::FAILED
+    assert(asb->getStatus().state == uci::base::AbstractServiceBusConnection::FAILED
            && "shutdown must leave ASB in terminal FAILED state");
 
     asb->shutdown();
-    assert(asb->getStatus().state == uci::base::AbstractServiceBusConnectionStatusData::FAILED
+    assert(asb->getStatus().state == uci::base::AbstractServiceBusConnection::FAILED
            && "shutdown must be idempotent");
 
     uci_destroyAbstractServiceBusConnection(asb);
